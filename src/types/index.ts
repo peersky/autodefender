@@ -59,7 +59,12 @@ export interface CustomMonitor {
   notification: YNotification;
 }
 export type CustomMonitoringType = Record<string, CustomMonitor>;
-
+export interface DeploymentRecord {
+  network: string;
+  name: string;
+  address: string;
+  abi: any[];
+}
 export type StandardMonitroingInterfaces =
   | 'Ownable'
   | 'Governor'

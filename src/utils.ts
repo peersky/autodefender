@@ -6,7 +6,8 @@ import {
 import fs from 'fs';
 import {load} from 'js-yaml';
 import path from 'path';
-import {DefenderConfigType} from './types';
+import {DeploymentRecord, DefenderConfigNetworksType} from './types';
+import {BaseContract} from 'ethers';
 
 export type Stage = 'dev' | 'prod';
 export type Layer = 'L1' | 'L2';
@@ -83,6 +84,34 @@ export async function getContract(
     address: contract.address,
   };
 }
+type DeploymentsPerNetwork = {[k in Network]: DeploymentRecord[]};
+type Unpacked<T> = T extends (infer U)[] ? U : T;
+export const sortByNetwork = (
+  deploymentRecords: DeploymentRecord[],
+  networks: DefenderConfigNetworksType
+) => {
+  //eslint-disable-next-line
+  let sortedByNetwork = {} as DeploymentsPerNetwork;
+  Object.keys(networks).forEach((key) => {
+    console.log(deploymentRecords[0].network);
+    sortedByNetwork[key as Network] = deploymentRecords.filter(
+      (_record) => _record.network === key
+    );
+    //eslint-disable-next-line
+  });
+  return sortedByNetwork;
+};
+export const eventSlicer = <T extends BaseContract>(
+  contract: T,
+  event: Unpacked<Parameters<T['getEvent']>>
+): string => {
+  return contract
+    .getEvent(event as string)
+    .fragment.format('minimal')
+    .slice(6)
+    .replace(new RegExp(', ', 'g'), ',')
+    .replace(new RegExp(' indexed', 'g'), '');
+};
 type StandardMessages =
   | 'info-message'
   | 'account-message'
