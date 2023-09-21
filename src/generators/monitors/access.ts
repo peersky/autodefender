@@ -1,21 +1,11 @@
-import {
-  FunctionFragment,
-  JsonRpcProvider,
-  ZeroAddress,
-  ethers,
-  isAddress,
-} from 'ethers';
+import {JsonRpcProvider, ZeroAddress, ethers} from 'ethers';
 import {DefenderConfigType, NotifyConfig, DeploymentRecord} from '../../types';
 import erc165abi from '../../../abis/IERC165.json';
-import erc721abi from '../../../abis/IERC721.json';
 import AccessControlAbi from '../../../abis/IAccessControl.json';
 import ACDefaultAdminRulesAbi from '../../../abis/IAccessControlDefaultAdminRules.json';
-import AcessControlEnumerableAbi from '../../../abis/AccessControlEnumerable.json';
-import {Ownable} from '../../types/typechain/Ownable';
 import {
   YBlockSentinel,
   YNotification,
-  YSentinel,
 } from '@openzeppelin/defender-serverless/lib/types';
 import {eventSlicer, getInterfaceID, getMessage} from '../../utils';
 import {AccessControlDefaultAdminRules} from '../../types/typechain/AccessControlDefaultAdminRules';
@@ -46,16 +36,12 @@ const findAllAccessControl = async (
 
   const owners: string[] = [];
   const contracts: {address: string; isDefaultAdmin: boolean}[] = [];
-  const contractACConnected = contractACBase.connect(provider);
   const contractACDAConnected = contractACDABase.connect(provider);
   const contract165Connected = contract165Base.connect(provider);
   for (const record of records) {
     process.stdout.clearLine(0);
     process.stdout.cursorTo(0);
     process.stdout.write(`Checking... ${record.address}`);
-    const contractAccesible = contractACDAConnected.attach(
-      record.address
-    ) as AccessControlDefaultAdminRules;
     const contractAccesibleDA = contractACDAConnected.attach(
       record.address
     ) as AccessControlDefaultAdminRules;

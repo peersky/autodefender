@@ -1,11 +1,9 @@
 import {
   BaseContract,
   Contract,
-  FunctionFragment,
   JsonRpcProvider,
   ZeroAddress,
   ethers,
-  isAddress,
 } from 'ethers';
 import {
   DefenderConfigType,
@@ -22,12 +20,10 @@ import governorAbi from '../../../abis/IGovernor.json';
 import AccessControlAbi from '../../../abis/IAccessControlDefaultAdminRules.json';
 import proxyAbi from '../../../abis/Proxies.json';
 import ownableAbi from '../../../abis/Ownable.json';
-import {Ownable} from '../../types/typechain/Ownable';
 import {
   YBlockSentinel,
   YFortaSentinel,
   YNotification,
-  YSentinel,
 } from '@openzeppelin/defender-serverless/lib/types';
 import {eventSlicer, getInterfaceID, getMessage} from '../../utils';
 
@@ -39,19 +35,11 @@ import {IERC20Metadata} from '../../types/typechain/IERC20Metadata';
 import {IGovernor} from '../../types/typechain/IGovernor';
 import {Proxies} from '../../types/typechain/Proxies';
 import {AccessControlDefaultAdminRules} from '../../types/typechain/AccessControlDefaultAdminRules';
-import {IERC20} from '../../types/typechain/IERC20';
 
 const contract165Base = new ethers.Contract(
   ZeroAddress,
   erc165abi
 ) as unknown as IERC165;
-
-const BaseSentinel: Pick<YBlockSentinel, 'paused' | 'type' | 'confirm-level'> =
-  {
-    paused: false,
-    type: 'BLOCK',
-    'confirm-level': 1,
-  };
 
 export class SentinelGenerator {
   private provider: JsonRpcProvider;
@@ -314,13 +302,13 @@ export class SentinelGenerator {
   findContractsWithInterface = async (
     contractBase: Contract,
     records: DeploymentRecord[],
-    additionalPropGetter?: (contract: BaseContract) => any
+    additionalPropGetter?: (contract: BaseContract) => Record<string, unknown>
   ) => {
     process.stdout.write('findContractsWithInterface... ');
     const interfaceIdAC = getInterfaceID(contractBase.interface);
 
     const owners: string[] = [];
-    const contracts: any[] = [];
+    const contracts = [];
     const contractConnected = contractBase.connect(this.provider);
     const contract165Connected = contract165Base.connect(this.provider);
     for (const record of records) {
@@ -363,11 +351,11 @@ export class SentinelGenerator {
   findERC20Contracts = async (
     contractBase: Contract,
     records: DeploymentRecord[],
-    additionalPropGetter?: (contract: BaseContract) => any
+    additionalPropGetter?: (contract: BaseContract) => Record<string, unknown>
   ) => {
     process.stdout.write('findERC20Contracts... ');
 
-    const contracts: any[] = [];
+    const contracts = [];
     const contractConnected = contractBase.connect(
       this.provider
     ) as unknown as IERC20Metadata;
@@ -441,7 +429,7 @@ export class SentinelGenerator {
     nDeployments: DeploymentRecord[],
     contractBase: Contract,
     standardInterfaceName: StandardMonitroingInterfaces,
-    additionalPropGetter?: (contract: BaseContract) => any
+    additionalPropGetter?: (contract: BaseContract) => Record<string, unknown>
   ) => {
     let priveledged: Set<string> = new Set<string>();
     const notifications: Record<string, YNotification> = {};
@@ -453,7 +441,7 @@ export class SentinelGenerator {
       standardInterfaceName === 'attack-detector' ? 'FORTA' : 'BLOCK';
     if (newMonitor.type !== 'FORTA')
       newMonitor.abi = this.templatesMap[standardInterfaceName].abi;
-    let contracts: any[] = [];
+    let contracts = [];
     if (standardInterfaceName === 'ERC20') {
       const result = await this.findERC20Contracts(
         contractBase,
@@ -503,7 +491,7 @@ export class SentinelGenerator {
         _nc.channels = _nc.channels.map((ch, idx) => {
           return ('${self:resources.Resources.notifications.' +
             hashes[idx] +
-            '}') as any;
+            '}') as unknown as YNotification; //This is safe to do because we are creating YML reference string
         });
 
         hashes.forEach((hash, idx) => {

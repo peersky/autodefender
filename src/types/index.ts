@@ -1,17 +1,6 @@
 import {BytesLike, Fragment, JsonFragment} from 'ethers';
 import {Network} from '@openzeppelin/defender-base-client';
-import {
-  YCategory,
-  YDatadogConfig,
-  YDiscordConfig,
-  YEmailConfig,
-  YNotification,
-  YOpsgenieConfig,
-  YPagerdutyConfig,
-  YSlackConfig,
-  YTelegramConfig,
-} from '@openzeppelin/defender-serverless/lib/types';
-import {NotificationType} from '@openzeppelin/defender-sentinel-client/lib/models/notification';
+import {YNotification} from '@openzeppelin/defender-serverless/lib/types';
 export type DefenderConfigNetworkType = {
   rpc?: string;
   directoryName: string;
@@ -23,6 +12,8 @@ export type DefenderConfigAccountsType = {
   logActions: boolean;
   lowOnGasThreshold: BytesLike;
 };
+
+export type Unpacked<T> = T extends (infer U)[] ? U : T;
 export interface NotifyConfig {
   timeout?: number;
   message?: string;
@@ -78,7 +69,3 @@ export type StandardMonitroingInterfaces =
   | 'ERC20'
   | 'AccessControl'
   | 'attack-detector';
-
-interface FortaMonitor {
-  botIds: string[];
-}

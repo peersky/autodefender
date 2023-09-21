@@ -5,7 +5,6 @@ import {Ownable} from '../../types/typechain/Ownable';
 import {
   YBlockSentinel,
   YNotification,
-  YSentinel,
 } from '@openzeppelin/defender-serverless/lib/types';
 import {eventSlicer, getMessage} from '../../utils';
 const contractOwnableBase = new ethers.Contract(

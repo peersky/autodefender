@@ -85,7 +85,7 @@ export async function getContract(
   };
 }
 type DeploymentsPerNetwork = {[k in Network]: DeploymentRecord[]};
-type Unpacked<T> = T extends (infer U)[] ? U : T;
+
 export const sortByNetwork = (
   deploymentRecords: DeploymentRecord[],
   networks: DefenderConfigNetworksType
@@ -136,18 +136,12 @@ export function getInterfaceID(contractInterface: ethers.Interface) {
   const selectors: string[] = [];
   //   contractInterface.fragments.forEach((fragment) => {
 
-  contractInterface.forEachFunction((fn, idx) => {
+  contractInterface.forEachFunction((fn) => {
     if (fn.name !== 'supportsInterface') selectors.push(fn.selector);
   });
   //   selectors = shuffle(selectors);
   for (let i = 0; i < selectors.length; i++) {
     interfaceID = interfaceID ^ BigInt(selectors[i]);
-    // console.log(
-    //   interfaceID.toString(16).padEnd(15),
-    //   selectors[i].padEnd(15),
-    //   BigInt(selectors[i]).toString(2).padStart(32, '0'),
-    //   BigInt(interfaceID).toString(2).padStart(32, '0')
-    // );
   }
   let interfaceIDStr: string = interfaceID.toString(16);
   //   while(interfaceIDStr.length < 8)

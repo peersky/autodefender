@@ -1,4 +1,4 @@
-import {JsonRpcProvider, ZeroAddress, ethers, isAddress} from 'ethers';
+import {JsonRpcProvider, ZeroAddress, ethers} from 'ethers';
 import {DefenderConfigType, NotifyConfig, DeploymentRecord} from '../../types';
 import IERC1155Abi from '../../../abis/IERC1155.json';
 import ERC165Abi from '../../../abis/ERC165.json';

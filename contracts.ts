@@ -1,7 +1,5 @@
-import {dump} from 'js-yaml';
 import {getProcessEnv} from './src/utils';
 import {DefenderServerless} from './src/defenderPluginTypes';
-import {inspect} from 'util';
 import df from './defender.config';
 
 export async function config(print: boolean): Promise<DefenderServerless> {

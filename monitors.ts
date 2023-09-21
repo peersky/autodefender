@@ -1,7 +1,5 @@
-import {dump} from 'js-yaml';
 import {getProcessEnv} from './src/utils';
 import {DefenderServerless} from './src/defenderPluginTypes';
-import {inspect} from 'util';
 import df from './defender.config';
 import MonitoringResources from './out/monitors.json';
 import {YSentinel} from '@openzeppelin/defender-serverless/lib/types';

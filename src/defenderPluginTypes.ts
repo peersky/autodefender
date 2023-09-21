@@ -7,12 +7,6 @@ import {
   YSecret,
 } from '@openzeppelin/defender-serverless/lib/types';
 import {AWS} from '@serverless/typescript';
-import {
-  MonitorFilterTrigger,
-  ScheduleTrigger,
-  SentinelTrigger,
-  WebhookTrigger,
-} from '@openzeppelin/defender-autotask-client/lib/models/autotask';
 
 export interface DefenderServerless
   extends Omit<AWS, 'provider' | 'resources'> {
