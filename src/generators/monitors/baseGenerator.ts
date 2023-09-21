@@ -326,7 +326,7 @@ export class SentinelGenerator {
     for (const record of records) {
       process.stdout.clearLine(0);
       process.stdout.cursorTo(0);
-      process.stdout.write(`Trying... ${record.address}`);
+      process.stdout.write(`Checking... ${record.address}`);
       const contractAttached = contractConnected.attach(record.address);
 
       const contract165Attached = contract165Connected.attach(
@@ -374,7 +374,7 @@ export class SentinelGenerator {
     for (const record of records) {
       process.stdout.clearLine(0);
       process.stdout.cursorTo(0);
-      process.stdout.write(`Trying... ${record.address}`);
+      process.stdout.write(`Checking... ${record.address}`);
       const contractAttached = contractConnected.attach(
         record.address
       ) as unknown as IERC20Metadata;

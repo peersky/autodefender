@@ -59,7 +59,7 @@ export const monitorsGenerator = async (
       for (const intefaceNameOrId in config.interfacesToNotify.standard) {
         const _intefaceNameOrId: StandardMonitroingInterfaces =
           intefaceNameOrId as any as StandardMonitroingInterfaces;
-        console.log(`Generating ${_intefaceNameOrId} monitor...`);
+        console.log(`Building ${_intefaceNameOrId} monitor...`);
 
         switch (_intefaceNameOrId) {
           case 'Ownable': {

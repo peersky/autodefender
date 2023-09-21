@@ -52,7 +52,7 @@ const findAllAccessControl = async (
   for (const record of records) {
     process.stdout.clearLine(0);
     process.stdout.cursorTo(0);
-    process.stdout.write(`Trying... ${record.address}`);
+    process.stdout.write(`Checking... ${record.address}`);
     const contractAccesible = contractACDAConnected.attach(
       record.address
     ) as AccessControlDefaultAdminRules;

@@ -24,7 +24,7 @@ export const findAllOwnable = async (
   for (const record of records) {
     process.stdout.clearLine(0);
     process.stdout.cursorTo(0);
-    process.stdout.write(`Trying... ${record.address}`);
+    process.stdout.write(`Checking... ${record.address}`);
     const contractOwnable = contractOwnableConnected.attach(
       record.address
     ) as Ownable;
@@ -47,6 +47,8 @@ export const findAllOwnable = async (
       //
     }
   }
+  process.stdout.clearLine(0);
+  process.stdout.cursorTo(0);
   console.log('Found ', contracts.length, 'Ownable contracts');
   return {contracts: contracts, owners: owners};
 };
