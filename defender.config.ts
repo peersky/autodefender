@@ -8,7 +8,7 @@ const config: DefenderConfigType = {
   path: 'https://api.github.com/repos/thesandboxgame/sandbox-smart-contracts/contents/packages/core/deployments',
   networks: {
     matic: {rpc: polygonRPC, directoryName: 'polygon'},
-    mainnet: {rpc: polygonRPC, directoryName: 'mainnet'},
+    mainnet: {rpc: mainnerRPC, directoryName: 'mainnet'},
   },
   interfacesToNotify: {
     standard: {

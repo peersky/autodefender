@@ -71,7 +71,7 @@ export const monitorsGenerator = async (
               provider,
               notifications
             );
-            monitors[val.resourceName] = val.newMonitor;
+            monitors[val.resourceName + '.' + networkKey] = val.newMonitor;
             notifications = {...val.notifications};
             break;
           }
@@ -83,7 +83,7 @@ export const monitorsGenerator = async (
               priviledgedAccounts,
               provider
             );
-            monitors[val.resourceName] = val.newMonitor;
+            monitors[val.resourceName + '.' + networkKey] = val.newMonitor;
             notifications = {...notifications, ...val.notifications};
             break;
           }
@@ -93,7 +93,7 @@ export const monitorsGenerator = async (
               nDeployments,
               'ERC1155'
             );
-            monitors[val.resourceName] = val.newMonitor;
+            monitors[val.resourceName + '.' + networkKey] = val.newMonitor;
             notifications = {...notifications, ...val.notifications};
             break;
           }
@@ -103,7 +103,7 @@ export const monitorsGenerator = async (
               nDeployments,
               'ERC20'
             );
-            monitors[val.resourceName] = val.newMonitor;
+            monitors[val.resourceName + '.' + networkKey] = val.newMonitor;
             notifications = {...notifications, ...val.notifications};
             break;
           }
@@ -113,7 +113,7 @@ export const monitorsGenerator = async (
               nDeployments,
               'Proxies'
             );
-            monitors[val.resourceName] = val.newMonitor;
+            monitors[val.resourceName + '.' + networkKey] = val.newMonitor;
             notifications = {...notifications, ...val.notifications};
             break;
           }
@@ -123,7 +123,7 @@ export const monitorsGenerator = async (
               nDeployments,
               'Governor'
             );
-            monitors[val.resourceName] = val.newMonitor;
+            monitors[val.resourceName + '.' + networkKey] = val.newMonitor;
             notifications = {...notifications, ...val.notifications};
             break;
           }
@@ -133,7 +133,7 @@ export const monitorsGenerator = async (
               nDeployments,
               'ERC721'
             );
-            monitors[val.resourceName] = val.newMonitor;
+            monitors[val.resourceName + '.' + networkKey] = val.newMonitor;
             notifications = {...notifications, ...val.notifications};
             break;
           }
@@ -143,7 +143,7 @@ export const monitorsGenerator = async (
               nDeployments,
               'attack-detector'
             );
-            monitors[val.resourceName] = val.newMonitor;
+            monitors[val.resourceName + '.' + networkKey] = val.newMonitor;
             notifications = {...notifications, ...val.notifications};
             break;
           }
