@@ -98,45 +98,9 @@ yargs(hideBin(process.argv))
       ]);
 
       child.stdout.on('data', (data) => {
-        if (!data.toString().startsWith(`{`) && !data.toString().length < 200)
+        if (!data.toString().startsWith(`{`) && data.toString().length < 100)
           process.stdout.write(data);
       });
-
-      // child.stderr.on('data', (data) => {
-      //   process.stdout.write(data);
-      // });
-
-      // child.on('close', (code) => {
-      //   console.log(`child process exited with code ${code}`);
-      // });
-
-      // const resultFile = ts.createSourceFile(
-      //   'contracts.ts',
-      //   '',
-      //   ts.ScriptTarget.Latest,
-      //   /*setParentNodes*/ false,
-      //   ts.ScriptKind.TS
-      // );
-      // const printer = ts.createPrinter({
-      //   newLine: ts.NewLineKind.LineFeed,
-      // });
-      // const result = printer.printNode(
-      //   ts.EmitHint.Unspecified,
-      //   makeContractsArray(),
-      //   resultFile
-      // );
-
-      //   const wallet = ethers.Wallet.createRandom();
-      //   console.log('************MNEMONIC**************');
-      //   console.log(wallet.mnemonic);
-      //   for (let i = 0; i < argv.depth; i++) {
-      //     const walletIdx = ethers.Wallet.fromMnemonic(
-      //       wallet.mnemonic.phrase,
-      //       `m/44'/60'/0'/0/${i}`
-      //     );
-      //     console.log(walletIdx.address);
-      //   }
-      //   console.log('**********************************');
     }
   )
   .parse();
