@@ -55,8 +55,7 @@ yargs(hideBin(process.argv))
         'contracts.ts',
       ]);
       child.stdout.on('data', (data) => {
-        if (!data.toString().startsWith(`{`) || !data.toString().length < 200)
-          process.stdout.write(data);
+        if (!data.toString().length < 200) process.stdout.write(data);
       });
     }
   )
@@ -98,8 +97,7 @@ yargs(hideBin(process.argv))
       ]);
 
       child.stdout.on('data', (data) => {
-        if (!data.toString().startsWith(`{`) || data.toString().length < 100)
-          process.stdout.write(data);
+        if (data.toString().length < 100) process.stdout.write(data);
       });
     }
   )
