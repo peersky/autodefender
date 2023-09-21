@@ -8,7 +8,7 @@ const config: DefenderConfigType = {
   path: 'https://api.github.com/repos/thesandboxgame/sandbox-smart-contracts/contents/packages/core/deployments',
   networks: {
     matic: {rpc: polygonRPC, directoryName: 'polygon'},
-    // mainnet: {rpc: polygonRPC, directoryName: 'mainnet'},
+    mainnet: {rpc: polygonRPC, directoryName: 'mainnet'},
   },
   interfacesToNotify: {
     standard: {
@@ -70,6 +70,7 @@ const config: DefenderConfigType = {
     'TRUSTED_FORWARDER',
     'PolygonLand_V1',
     'FAKE*',
+    'DAIMedianize',
   ],
   excludeAccounts: ['0x000000000000AAeB6D7670E522A718067333cd4E'],
 };

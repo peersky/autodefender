@@ -1,3 +1,4 @@
+const {ethers} = require('ethers');
 const {minimatch} = require('minimatch');
 const path = require('path');
 const fetchGH = async (path) => {
@@ -41,11 +42,19 @@ const getDeployments = async (config) => {
         ) {
           const filePath = nwDirPath + contractFileDescr.name;
           console.log('fetching..', filePath);
-          deploymentRecords.push({
-            ...(await fetchGH(contractFileDescr.download_url)),
-            name: path.parse(contractFileDescr.name).name,
-            network: nKey,
-          });
+          const rec = await fetchGH(contractFileDescr.download_url);
+
+          if (rec.address && rec.abi) {
+            if (rec.abi.length == 1) {
+              const transform = ethers.Interface.from(rec.abi).format('full');
+              rec.abi = transform;
+            }
+            deploymentRecords.push({
+              ...rec,
+              name: path.parse(contractFileDescr.name).name,
+              network: nKey,
+            });
+          }
         }
       }
     }
