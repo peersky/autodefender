@@ -7,3 +7,7 @@ export MAINNET_RPC_URL="url"
 
 yarn && yarn contracts && yarn monitors
 ```
+
+
+to change configuration edit the `defender.config.js`
+
