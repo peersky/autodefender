@@ -33,3 +33,5 @@ defender/autotasks/compile
 
 # editors
 .idea
+out/contracts.json
+out/monitors.json

@@ -7,7 +7,7 @@ import fs from 'fs';
 import {load} from 'js-yaml';
 import path from 'path';
 import {DeploymentRecord, DefenderConfigNetworksType} from './types';
-import {BaseContract} from 'ethers';
+import {BaseContract, ethers} from 'ethers';
 
 export type Stage = 'dev' | 'prod';
 export type Layer = 'L1' | 'L2';
@@ -103,7 +103,7 @@ export const sortByNetwork = (
 };
 export const eventSlicer = <T extends BaseContract>(
   contract: T,
-  event: Unpacked<Parameters<T['getEvent']>>
+  event: string
 ): string => {
   return contract
     .getEvent(event as string)
@@ -129,4 +129,37 @@ export function getProcessEnv(print: boolean, key: string) {
     throw new Error(key + ' must be exported in env');
   }
   return print ? 'X'.repeat(ret.length) : ret;
+}
+
+export function getInterfaceID(contractInterface: ethers.Interface) {
+  let interfaceID: any = BigInt(0);
+  const selectors: string[] = [];
+  //   contractInterface.fragments.forEach((fragment) => {
+
+  contractInterface.forEachFunction((fn, idx) => {
+    if (fn.name !== 'supportsInterface') selectors.push(fn.selector);
+  });
+  //   selectors = shuffle(selectors);
+  for (let i = 0; i < selectors.length; i++) {
+    interfaceID = interfaceID ^ BigInt(selectors[i]);
+    // console.log(
+    //   interfaceID.toString(16).padEnd(15),
+    //   selectors[i].padEnd(15),
+    //   BigInt(selectors[i]).toString(2).padStart(32, '0'),
+    //   BigInt(interfaceID).toString(2).padStart(32, '0')
+    // );
+  }
+  let interfaceIDStr: string = interfaceID.toString(16);
+  //   while(interfaceIDStr.length < 8)
+  //   {
+  //     interfaceIDStr = "0" + interfaceIDStr;
+  //   }
+  interfaceIDStr = interfaceIDStr.padStart(8, '0');
+  interfaceIDStr = interfaceIDStr.padStart(10, '0x');
+
+  //   interfaceID = interfaceID.length < 8 ?
+
+  //   const padded = ethers.zeroPadBytes(interfaceID.toString(16), 4);
+  //   console.log('padded,', padded);
+  return interfaceIDStr;
 }

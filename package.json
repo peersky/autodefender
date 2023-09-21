@@ -13,7 +13,9 @@
     "sls:dev:print": "STAGE=dev ts-node",
     "sls:prod:print": "STAGE=prod ts-node",
     "sls:dev:clean": "sls remove --stage dev --config ",
-    "sls:prod:clean": "sls remove --stage prod --config "
+    "sls:prod:clean": "sls remove --stage prod --config ",
+    "types": "typechain --target ethers-v6 ./abis/*.json --out-dir ./src/types/typechain",
+    "solc:abis": "solc contracts/*.sol node_modules/@openzeppelin/contracts/governance/IGovernor.sol node_modules/@openzeppelin/contracts/interfaces/*.sol node_modules/@openzeppelin/contracts/access/*.sol  --abi -o ./abis --pretty-json --overwrite && ./src/renameAbis.sh"
   },
   "devDependencies": {
     "@openzeppelin/defender-base-client": "^1.46.0",

@@ -30,13 +30,17 @@ export interface NotifyConfig {
   // category?: YCategory;
   channels: YNotification[];
 }
+export interface InterfaceConfig {
+  notifyConfig: NotifyConfig;
+  config?: any;
+}
 export interface DefenderConfigType {
   path: string;
   projectName: string;
   networks?: DefenderConfigNetworksType;
   interfacesToNotify: {
     standard?: Partial<
-      Record<keyof TemplatedMonitoringInterfaceType, NotifyConfig>
+      Record<keyof TemplatedMonitoringInterfaceType, InterfaceConfig>
     >;
     custom?: CustomMonitoringType;
   };
@@ -69,18 +73,12 @@ export type StandardMonitroingInterfaces =
   | 'Ownable'
   | 'Governor'
   | 'Proxies'
-  | 'Roles'
   | 'ERC1155'
   | 'ERC721'
   | 'ERC20'
   | 'AccessControl'
-  | 'AccessControlDefaultAdminRules';
+  | 'attack-detector';
 
 interface FortaMonitor {
   botIds: string[];
 }
-export type FortaMonitors =
-  | 'attack-detector'
-  | 'spam-scam-detector'
-  | 'sentiment-analysis'
-  | '';

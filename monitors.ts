@@ -12,7 +12,7 @@ export async function config(print: boolean): Promise<DefenderServerless> {
   console.log(
     'Deploying ',
     Object.keys(MonitoringResources.monitors).length,
-    ' Contracts'
+    ' Monitors'
   );
   const ret: DefenderServerless = {
     service: 'contracts' + df.projectName,

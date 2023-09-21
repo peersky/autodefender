@@ -1,13 +1,13 @@
 import {JsonRpcProvider, ZeroAddress, ethers, isAddress} from 'ethers';
 import {DefenderConfigType, NotifyConfig, DeploymentRecord} from '../../types';
-import OwnableAbi from '../../../abis/Ownable.abi.json';
+import OwnableAbi from '../../../abis/Ownable.json';
 import {Ownable} from '../../types/typechain/Ownable';
 import {
   YBlockSentinel,
   YNotification,
   YSentinel,
 } from '@openzeppelin/defender-serverless/lib/types';
-import {getMessage} from '../../utils';
+import {eventSlicer, getMessage} from '../../utils';
 const contractOwnableBase = new ethers.Contract(
   ZeroAddress,
   OwnableAbi
@@ -22,25 +22,32 @@ export const findAllOwnable = async (
   const contracts: string[] = [];
   const contractOwnableConnected = contractOwnableBase.connect(provider);
   for (const record of records) {
-    console.log('Checking if contract is Ownable..', record.address);
+    process.stdout.clearLine(0);
+    process.stdout.cursorTo(0);
+    process.stdout.write(`Trying... ${record.address}`);
     const contractOwnable = contractOwnableConnected.attach(
       record.address
     ) as Ownable;
+    let isOwnable = false;
+    try {
+      const owner = await contractOwnable.owner();
+      isOwnable = isAddress(owner);
 
-    const owner = await contractOwnable.owner();
-    const ownerMethodLegit = isAddress(owner);
+      if (isOwnable) {
+        if (!owners.includes(owner) && !config.excludeAccounts.includes(owner))
+          owners.push(owner);
 
-    if (ownerMethodLegit) {
-      if (!owners.includes(owner) && !config.excludeAccounts.includes(owner))
-        owners.push(owner);
-
-      if (
-        !contracts.includes(record.address) &&
-        !config.excludeAccounts.includes(record.address)
-      )
-        contracts.push(record.address);
+        if (
+          !contracts.includes(record.address) &&
+          !config.excludeAccounts.includes(record.address)
+        )
+          contracts.push(record.address);
+      }
+    } catch (e) {
+      //
     }
   }
+  console.log('Found ', contracts.length, 'Ownable contracts');
   return {contracts: contracts, owners: owners};
 };
 
@@ -50,13 +57,8 @@ export const generateOwnableMonitor = async (
   nDeployments: DeploymentRecord[],
   priviledgedAccounts: Set<string>,
   provider: JsonRpcProvider,
-  notifications: Record<string, YNotification>,
-  monitors: Record<string, YSentinel> = {}
-): Promise<{
-  priviledgedAccounts: Set<string>;
-  notifications: Record<string, YNotification>;
-  monitors: Record<string, YSentinel>;
-}> => {
+  notifications: Record<string, YNotification>
+) => {
   newMonitor['risk-category'] = 'ACCESS-CONTROL';
   newMonitor.abi = OwnableAbi;
   newMonitor.name = `${config.projectName} Ownable`;
@@ -72,10 +74,10 @@ export const generateOwnableMonitor = async (
     if (config.interfacesToNotify.standard?.['Ownable']) {
       newMonitor.addresses = contracts;
       const message =
-        config.interfacesToNotify.standard?.['Ownable']?.message ??
+        config.interfacesToNotify.standard?.['Ownable']?.notifyConfig.message ??
         getMessage('info-message');
       const notifyConfig: NotifyConfig = {
-        ...config.interfacesToNotify.standard?.['Ownable'],
+        ...config.interfacesToNotify.standard?.['Ownable'].notifyConfig,
         message: message,
       };
       const hashes = notifyConfig.channels.map((ch) => {
@@ -94,8 +96,23 @@ export const generateOwnableMonitor = async (
           notifications[hash] = notifyConfig.channels[idx];
       });
       newMonitor['notify-config'] = _nc;
-      monitors['ownable-monitor'] = newMonitor;
+      newMonitor.conditions = {
+        event: [
+          {
+            signature: eventSlicer<Ownable>(
+              contractOwnableBase,
+              'OwnershipTransferred'
+            ),
+          },
+        ],
+        function: [{signature: ''}],
+      };
     }
   }
-  return {monitors, notifications, priviledgedAccounts};
+  return {
+    newMonitor,
+    notifications,
+    priviledgedAccounts,
+    resourceName: 'ownable-monitor',
+  };
 };

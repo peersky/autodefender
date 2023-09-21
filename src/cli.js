@@ -4,10 +4,9 @@ const {hideBin} = require('yargs/helpers');
 const fs = require('fs');
 const {contractsFormatter} = require('./generators/contracts');
 const {getDeployments} = require('./githubFetch');
-const {monitorsGenerator} = require('./generators/monitors/ownable');
+const {monitorsGenerator} = require('./generators/monitors');
 
 const {spawn} = require('child_process');
-//Short code
 
 /** @dev
  *  ******HARDHAT DEPLOY SCENARIO***************
@@ -22,7 +21,7 @@ const {spawn} = require('child_process');
  */
 yargs(hideBin(process.argv))
   .command(
-    'fromHHDeploy',
+    'fromHHDeployContracts',
     'Creates from hardhat deployment artifacts',
     (yargs) => {
       return yargs
@@ -43,11 +42,47 @@ yargs(hideBin(process.argv))
       } catch (e) {
         //
       }
-      console.log('outdir,', config.outDir);
       fs.writeFileSync(
         `${config.outDir}/contracts.json`,
         contractsFormatter(deploymentRecords)
       );
+
+      const child = spawn('sls', [
+        'deploy',
+        '--stage',
+        'dev',
+        '--config',
+        'contracts.ts',
+      ]);
+      child.stdout.on('data', (data) => {
+        if (!data.toString().startsWith(`{`) && !data.toString().length < 200)
+          process.stdout.write(data);
+      });
+    }
+  )
+  .command(
+    'fromHHDeployMonitors',
+    'Creates from hardhat deployment artifacts',
+    (yargs) => {
+      return yargs
+        .positional('in', {
+          describe: 'path where deployments folder resides',
+          // default: 10,
+        })
+        .positional('config', {describe: 'Path to configuration file'});
+    },
+    async (argv) => {
+      const config = require(argv.config);
+      let deploymentRecords = [];
+      if (config.path.startsWith('http')) {
+        deploymentRecords = await getDeployments(config);
+      }
+      try {
+        fs.mkdirSync(config.outDir);
+      } catch (e) {
+        //
+      }
+
       const monitors = await monitorsGenerator(deploymentRecords, config);
       fs.writeFileSync(
         `${config.outDir}/monitors.json`,
@@ -62,24 +97,14 @@ yargs(hideBin(process.argv))
         'monitors.ts',
       ]);
 
-      // const child = spawn('sls', [
-      //   'deploy',
-      //   '--stage',
-      //   'dev',
-      //   '--config',
-      //   'contracts.ts',
-      // ]);
       child.stdout.on('data', (data) => {
-        console.log(
-          data.toString().startsWith(`{
-          "stack": "contracts_WORKSHOP1",`)
-        );
-        process.stdout.write(data);
+        if (!data.toString().startsWith(`{`) && !data.toString().length < 200)
+          process.stdout.write(data);
       });
 
-      child.stderr.on('data', (data) => {
-        process.stdout.write(data);
-      });
+      // child.stderr.on('data', (data) => {
+      //   process.stdout.write(data);
+      // });
 
       // child.on('close', (code) => {
       //   console.log(`child process exited with code ${code}`);

@@ -33,7 +33,7 @@ const getDeployments = async (config) => {
       const nwDirPath = config.path + '/' + deploymentPath.name;
       console.log('fetching..', nwDirPath);
       const networkDir = await fetchGH(nwDirPath);
-      for (const contractFileDescr of networkDir.slice(0, 3)) {
+      for (const contractFileDescr of networkDir) {
         if (
           !matches(contractFileDescr.name, config.excludeDeployments) &&
           contractFileDescr.type == 'file' &&
