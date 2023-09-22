@@ -24,13 +24,13 @@ Open or create new `defender.config.ts` in root of this repository.
 ```ts
 projectName: '', //StackName
   path: // url or path to directory that contains /<network>/<contractName>.json. File must contain {abi, address} properties.
-  networks: {
-    // matic: {rpc: polygonRPC, directoryName: 'polygon'}, // RPC URL and directory names in path ^^
-    // mainnet: {rpc: mainnerRPC, directoryName: 'mainnet'},
+  networks: { // these are needded for matchers that require web3 connection
+    matic: {rpc: polygonRPC, directoryName: 'polygon'}, // RPC URL and directory names in path ^^
+    mainnet: {rpc: mainnerRPC, directoryName: 'mainnet'},
   },
   monitors: {
     Ownership: { // Custom name - create as many as you like
-      contractsFilter: findERC20Contracts(), //see src/templates/matchers for availible matchers
+      contractsFilter: findERC20Contracts(), //see src/templates/matchers for availible matchers.
       monitor: mintMonitor('ERC20', '100'), // see src/templates/monitors for availbile monitors.
     },
   },
