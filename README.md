@@ -54,7 +54,7 @@ projectName: '', //StackName
 };
 ```
 
-## Fetching & Deploying
+## Generating & Deploying
 
 ### Export env variables
 
