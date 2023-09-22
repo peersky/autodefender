@@ -29,9 +29,13 @@ projectName: '', //StackName
     mainnet: {rpc: mainnerRPC, directoryName: 'mainnet'},
   },
   monitors: {
-    Ownership: { // Custom name - create as many as you like
-      contractsFilter: findERC20Contracts(), //see src/templates/matchers for availible matchers.
-      monitor: mintMonitor('ERC20', '100'), // see src/templates/monitors for availbile monitors.
+    'Large-Mint-ERC20': { //Custom name, create as amany as you like
+      notification: { // Notifyconfig
+        channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))], //availible getters in /src/templates/notifications
+      },
+      contractsFilter: findERC20Contracts(), //see availible matchers in src/templates/matchers
+      monitor: mintMonitor('ERC20', '100'), //see availible monitors in src/templates/monitors
+      //ToDo: Add trigger templates here
     },
   },
   outDir: './out', //Directory where serverless resources will be generated.
