@@ -11,14 +11,12 @@ Here is what you will be able to configure:
 - How to determine which contracts should be monitored in each particular template
 - Where to send notifications
 
-Great thing about this
-
 ### Setting up:
 
 Run
 
 ```
-yarn
+yarn && yarn types
 ```
 
 Open or create new `defender.config.ts` in root of this repository.
@@ -61,6 +59,8 @@ projectName: '', //StackName
 ### Export env variables
 
 ```
+export DEFENDER_SECRET = ""
+export DEFENDER_KEY = ""
 export POLYGON_RPC_URL="url"
 export SLACK_URL="url"
 export MAINNET_RPC_URL="url"
