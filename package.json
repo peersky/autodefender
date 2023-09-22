@@ -47,6 +47,7 @@
   "dependencies": {
     "@openzeppelin/contracts": "^4.9.3",
     "@openzeppelin/defender-serverless": "^1.2.2",
+    "bottleneck": "^2.19.5",
     "hardhat": "^2.17.3",
     "minimatch": "^9.0.3",
     "solc": "^0.8.21",

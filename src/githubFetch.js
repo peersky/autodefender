@@ -1,6 +1,7 @@
 const {ethers} = require('ethers');
-const {minimatch} = require('minimatch');
+
 const path = require('path');
+const {matches} = require('./utils');
 const fetchGH = async (path) => {
   return fetch(path).then(
     (response) => response.json(),
@@ -9,15 +10,6 @@ const fetchGH = async (path) => {
     }
   );
 };
-
-const matches = (item, exprs) => {
-  let matched = false;
-  for (const expr of exprs) {
-    matched = matched || minimatch(item, expr + '.json');
-  }
-  return matched;
-};
-
 const getDeployments = async (config) => {
   console.log('getDeployments...');
   const deploymentRecords = [];

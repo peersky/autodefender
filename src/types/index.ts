@@ -1,6 +1,12 @@
-import {BytesLike, Fragment, JsonFragment} from 'ethers';
+import {BytesLike, Fragment, JsonFragment, JsonRpcProvider} from 'ethers';
 import {Network} from '@openzeppelin/defender-base-client';
-import {YNotification} from '@openzeppelin/defender-serverless/lib/types';
+import {
+  DefenderSubscriberRiskCategory,
+  YCategory,
+  YFortaSentinel,
+  YNotification,
+  YSentinel,
+} from '@openzeppelin/defender-serverless/lib/types';
 export type DefenderConfigNetworkType = {
   rpc?: string;
   directoryName: string;
@@ -18,24 +24,24 @@ export interface NotifyConfig {
   timeout?: number;
   message?: string;
   'message-subject'?: string;
-  // category?: YCategory;
+  category?: YCategory;
   channels: YNotification[];
 }
-export interface InterfaceConfig {
-  notifyConfig: NotifyConfig;
-  config?: any;
-}
+// export interface InterfaceConfig {
+//   notifyConfig: NotifyConfig;
+//   config?: any;
+// }
 export interface DefenderConfigType {
   path: string;
   projectName: string;
   networks?: DefenderConfigNetworksType;
-  interfacesToNotify: {
-    standard?: Partial<
-      Record<keyof TemplatedMonitoringInterfaceType, InterfaceConfig>
-    >;
-    custom?: CustomMonitoringType;
-  };
-  fraudMonitoring: StandardMonitroingInterfaces[];
+  monitors?: {[key: string]: DefenderMonitorTemplate};
+  // interfacesToNotify: {
+  //   standard?: Partial<
+  //     Record<keyof TemplatedMonitoringInterfaceType, InterfaceConfig>
+  //   >;
+  //   custom?: CustomMonitoringType;
+  // };
   outDir: string;
   accounts: DefenderConfigAccountsType;
   excludeDeployments: string[];
@@ -45,10 +51,53 @@ export interface DefenderConfigType {
 export interface CustomMonitoringInterface {
   notification: YNotification;
 }
-export type TemplatedMonitoringInterfaceType = Record<
-  StandardMonitroingInterfaces,
-  YNotification
->;
+export type AbiItem = ReadonlyArray<Fragment | JsonFragment | string>;
+export interface AddressInfoProps {
+  address: string;
+  abi?: ReadonlyArray<Fragment | JsonFragment | string>;
+}
+
+export type TSentinel = Omit<
+  YSentinel,
+  'notify-config' | 'addresses' | 'autotask-condition' | 'autotask-trigger'
+> & {
+  'autotask-condition'?: string;
+  'autotask-trigger'?: string;
+};
+
+export type TFortaSentinel = Omit<
+  YFortaSentinel,
+  'notify-config' | 'autotask-condition'
+> & {
+  'autotask-condition'?: string;
+  'autotask-trigger'?: string;
+};
+
+export interface PriveledgedAccountOutput {
+  account: string;
+  riskCategory: DefenderSubscriberRiskCategory;
+}
+interface TSentinelOutput {
+  newMonitor: TSentinel;
+  defaultMessage: string;
+}
+export type TSentinelGetter = (
+  contractAddresses: AddressInfoProps[],
+  provider: JsonRpcProvider
+) => Promise<TSentinelOutput>;
+export interface DefenderMonitorTemplate {
+  notification: NotifyConfig;
+  monitor: TSentinelGetter;
+  // channels: YNotification[];
+  triggerPath?: string;
+  contractsFilter: (
+    contractInfo: AddressInfoProps[],
+    provider: JsonRpcProvider
+  ) => Promise<AddressInfoProps[]>;
+  priviledgedAccountFilter?: (
+    contractInfo: AddressInfoProps[]
+  ) => Promise<string[]>;
+}
 export interface CustomMonitor {
   abi: ReadonlyArray<Fragment | JsonFragment | string>;
   notification: YNotification;
@@ -60,12 +109,12 @@ export interface DeploymentRecord {
   address: string;
   abi: any[];
 }
-export type StandardMonitroingInterfaces =
-  | 'Ownable'
-  | 'Governor'
-  | 'Proxies'
-  | 'ERC1155'
-  | 'ERC721'
-  | 'ERC20'
-  | 'AccessControl'
-  | 'attack-detector';
+// export type StandardMonitroingInterfaces =
+//   | 'Ownable'
+//   | 'Governor'
+//   | 'Proxies'
+//   | 'ERC1155'
+//   | 'ERC721'
+//   | 'ERC20'
+//   | 'AccessControl'
+//   | 'attack-detector';

@@ -6,8 +6,9 @@ import {
 import fs from 'fs';
 import {load} from 'js-yaml';
 import path from 'path';
-import {DeploymentRecord, DefenderConfigNetworksType} from './types';
+import {DeploymentRecord, DefenderConfigNetworksType, AbiItem} from './types';
 import {BaseContract, ethers} from 'ethers';
+import {minimatch} from 'minimatch';
 
 export type Stage = 'dev' | 'prod';
 export type Layer = 'L1' | 'L2';
@@ -41,11 +42,14 @@ export const STAGE_2_NETWORKS: {[k in Stage]: Networks} = {
     },
   },
 };
-export function getSlackNotifyChannel(url: string): YNotification {
+export function getSlackNotifyChannel(
+  url: string,
+  name = 'Slack notifications'
+): YNotification {
   return {
     type: 'slack',
     paused: false,
-    name: '',
+    name: name,
     config: {
       url,
     },
@@ -84,7 +88,23 @@ export async function getContract(
     address: contract.address,
   };
 }
+export const matches = (item: any, exprs: any) => {
+  let matched = false;
+  for (const expr of exprs) {
+    matched = matched || minimatch(item, expr + '.json');
+  }
+  return matched;
+};
 type DeploymentsPerNetwork = {[k in Network]: DeploymentRecord[]};
+export const parseAbi = (abi: AbiItem) => {
+  const _abi = [...abi];
+  if (abi.length == 1) {
+    const transform = ethers.Interface.from(abi).format(true);
+    return transform;
+  } else {
+    return _abi;
+  }
+};
 
 export const sortByNetwork = (
   deploymentRecords: DeploymentRecord[],
