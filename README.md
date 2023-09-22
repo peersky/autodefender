@@ -22,7 +22,8 @@ yarn && yarn types
 Open or create new `defender.config.ts` in root of this repository.
 
 ```ts
-projectName: '', //StackName
+{
+  projectName: '', //StackName
   path: // url or path to directory that contains /<network>/<contractName>.json. File must contain {abi, address} properties.
   networks: { // these are needded for matchers that require web3 connection
     matic: {rpc: polygonRPC, directoryName: 'polygon'}, // RPC URL and directory names in path ^^
