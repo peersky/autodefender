@@ -1,4 +1,4 @@
-import {ZeroAddress, ethers} from 'ethers';
+import {ethers} from 'ethers';
 import {TSentinel, TSentinelGetter} from '../../types';
 import OwnableAbi from '../../../abis/Ownable.json';
 import {Ownable} from '../../types/typechain/Ownable';
@@ -7,7 +7,7 @@ import fs from 'fs';
 import {eventSlicer} from '../../utils';
 
 const contractOwnableBase = new ethers.Contract(
-  ZeroAddress,
+  ethers.constants.AddressZero,
   OwnableAbi
 ) as unknown as Ownable;
 

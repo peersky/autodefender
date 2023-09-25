@@ -1,4 +1,4 @@
-import {Contract, JsonRpcProvider, ZeroAddress, ethers} from 'ethers';
+import {Contract, ethers, providers} from 'ethers';
 import {AbiItem, AddressInfoProps} from '../../types';
 import erc165abi from '../../../abis/IERC165.json';
 import {getInterfaceID} from '../../utils';
@@ -6,7 +6,7 @@ import {getInterfaceID} from '../../utils';
 import {IERC165} from '../../types/typechain/IERC165';
 
 const contract165Base = new ethers.Contract(
-  ZeroAddress,
+  ethers.constants.AddressZero,
   erc165abi
 ) as unknown as IERC165;
 
@@ -14,14 +14,17 @@ export const findContractsWithInterface =
   (abiOrInterffaceId: AbiItem | string, excludeAccounts?: string[]) =>
   async (
     records: AddressInfoProps[],
-    provider: JsonRpcProvider
+    provider: providers.JsonRpcProvider
   ): Promise<AddressInfoProps[]> => {
     process.stdout.write('findContractsWithInterface... ');
     let interfaceId;
     if (typeof abiOrInterffaceId === 'string') {
       interfaceId = abiOrInterffaceId;
     } else {
-      const contractBase = new Contract(ZeroAddress, abiOrInterffaceId);
+      const contractBase = new Contract(
+        ethers.constants.AddressZero,
+        abiOrInterffaceId
+      );
       interfaceId = getInterfaceID(contractBase.interface);
     }
 
@@ -66,7 +69,7 @@ export const findContractsWithInterfaces =
   (abisOrIds: AbiItem[] | string[], excludeAccounts?: string[]) =>
   async (
     records: AddressInfoProps[],
-    provider: JsonRpcProvider
+    provider: providers.JsonRpcProvider
   ): Promise<AddressInfoProps[]> => {
     const results = [];
     let abiorId: AbiItem | string;

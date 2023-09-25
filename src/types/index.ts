@@ -1,4 +1,4 @@
-import {BytesLike, Fragment, JsonFragment, JsonRpcProvider} from 'ethers';
+import {BytesLike, providers} from 'ethers';
 import {Network} from '@openzeppelin/defender-base-client';
 import {
   DefenderSubscriberRiskCategory,
@@ -7,6 +7,8 @@ import {
   YNotification,
   YSentinel,
 } from '@openzeppelin/defender-serverless/lib/types';
+import {Fragment} from 'ethers/lib/utils';
+import {JsonFragment} from '@ethersproject/abi';
 export type DefenderConfigNetworkType = {
   rpc?: string;
   directoryName: string;
@@ -83,7 +85,7 @@ interface TSentinelOutput {
 }
 export type TSentinelGetter = (
   contractAddresses: AddressInfoProps[],
-  provider: JsonRpcProvider
+  provider: providers.JsonRpcProvider
 ) => Promise<TSentinelOutput>;
 export interface DefenderMonitorTemplate {
   notification: NotifyConfig;
@@ -92,7 +94,7 @@ export interface DefenderMonitorTemplate {
   triggerPath?: string;
   contractsFilter: (
     contractInfo: AddressInfoProps[],
-    provider: JsonRpcProvider
+    provider: providers.JsonRpcProvider
   ) => Promise<AddressInfoProps[]>;
   priviledgedAccountFilter?: (
     contractInfo: AddressInfoProps[]

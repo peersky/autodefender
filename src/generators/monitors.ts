@@ -1,4 +1,4 @@
-import {JsonRpcProvider, ethers} from 'ethers';
+import {ethers, providers} from 'ethers';
 import {
   DefenderConfigType,
   DeploymentRecord,
@@ -39,7 +39,7 @@ export const monitorsGenerator = async (
       ' Contracts'
     );
 
-    const provider = new ethers.JsonRpcProvider(
+    const provider = new ethers.providers.JsonRpcProvider(
       config.networks[networkKey]?.rpc
     );
 
@@ -63,7 +63,7 @@ export const monitorsGenerator = async (
   const notifications: {[key: string]: YNotification} = {};
   for (const k in monitors) {
     for (const ch of monitors[k]['notify-config'].channels) {
-      const hash = ethers.hashMessage(JSON.stringify(ch));
+      const hash = ethers.utils.hashMessage(JSON.stringify(ch));
       if (!notifications[hash]) notifications[hash] = ch;
     }
   }
@@ -87,7 +87,7 @@ const monitorBuilder = async (
   template: TSentinelGetter,
   addresses: Promise<AddressInfoProps[]>,
   notifyConfig: NotifyConfig,
-  provider: JsonRpcProvider,
+  provider: providers.JsonRpcProvider,
   networkKey: Network
 ): Promise<YSentinel> => {
   const _addresses = await addresses;

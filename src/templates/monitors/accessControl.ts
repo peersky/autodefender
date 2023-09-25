@@ -1,11 +1,11 @@
-import {ZeroAddress, ethers} from 'ethers';
+import {ethers} from 'ethers';
 import {TSentinel, TSentinelGetter} from '../../types';
 import fs from 'fs';
 import {eventSlicer} from '../../utils';
 import {AccessControlDefaultAdminRules} from '../../types/typechain';
 import AccessControlAbi from '../../../abis/AccessControlDefaultAdminRules.json';
 const accessContract = new ethers.Contract(
-  ZeroAddress,
+  ethers.constants.AddressZero,
   AccessControlAbi
 ) as unknown as AccessControlDefaultAdminRules;
 
@@ -27,55 +27,55 @@ export const accessMonitor =
           {
             signature: eventSlicer<AccessControlDefaultAdminRules>(
               accessContract,
-              accessContract
+              accessContract.interface
                 .getEvent('RoleAdminChanged')
-                .fragment.format('full')
+                .format('full')
             ),
           },
           {
             signature: eventSlicer<AccessControlDefaultAdminRules>(
               accessContract,
-              accessContract.getEvent('RoleGranted').fragment.format('full')
+              accessContract.interface.getEvent('RoleGranted').format('full')
             ),
           },
           {
             signature: eventSlicer<AccessControlDefaultAdminRules>(
               accessContract,
-              accessContract
+              accessContract.interface
                 .getEvent('RoleAdminChanged')
-                .fragment.format('full')
+                .format('full')
             ),
           },
           {
             signature: eventSlicer<AccessControlDefaultAdminRules>(
               accessContract,
-              accessContract
+              accessContract.interface
                 .getEvent('DefaultAdminTransferScheduled')
-                .fragment.format('full')
+                .format('full')
             ),
           },
           {
             signature: eventSlicer<AccessControlDefaultAdminRules>(
               accessContract,
-              accessContract
+              accessContract.interface
                 .getEvent('DefaultAdminTransferCanceled')
-                .fragment.format('full')
+                .format('full')
             ),
           },
           {
             signature: eventSlicer<AccessControlDefaultAdminRules>(
               accessContract,
-              accessContract
+              accessContract.interface
                 .getEvent('DefaultAdminDelayChangeScheduled')
-                .fragment.format('full')
+                .format('full')
             ),
           },
           {
             signature: eventSlicer<AccessControlDefaultAdminRules>(
               accessContract,
-              accessContract
+              accessContract.interface
                 .getEvent('DefaultAdminDelayChangeCanceled')
-                .fragment.format('full')
+                .format('full')
             ),
           },
         ],

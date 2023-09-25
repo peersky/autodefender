@@ -1,18 +1,18 @@
-import {Contract, JsonRpcProvider, ZeroAddress} from 'ethers';
+import {Contract, ethers, providers} from 'ethers';
 import {AddressInfoProps} from '../../types';
 import erc20abi from '../../../abis/IERC20Metadata.json';
 
 import {IERC20Metadata} from '../../types/typechain/IERC20Metadata';
 
 const erc20contract = new Contract(
-  ZeroAddress,
+  ethers.constants.AddressZero,
   erc20abi
 ) as unknown as IERC20Metadata;
 export const findERC20Contracts =
   (excludeAccounts?: string[]) =>
   async (
     records: AddressInfoProps[],
-    provider: JsonRpcProvider
+    provider: providers.JsonRpcProvider
   ): Promise<AddressInfoProps[]> => {
     process.stdout.write('findERC20Contracts... ');
 
@@ -31,12 +31,17 @@ export const findERC20Contracts =
       let supportsInterface = false;
 
       try {
-        const allowance = contractAttached.allowance(ZeroAddress, ZeroAddress);
+        const allowance = contractAttached.allowance(
+          ethers.constants.AddressZero,
+          ethers.constants.AddressZero
+        );
         const name = contractAttached.name();
         const symbol = contractAttached.symbol();
         const decimals = contractAttached.decimals();
         const totalSupply = contractAttached.totalSupply();
-        const balanceOf = contractAttached.balanceOf(ZeroAddress);
+        const balanceOf = contractAttached.balanceOf(
+          ethers.constants.AddressZero
+        );
         await Promise.all([
           allowance,
           name,

@@ -1,4 +1,4 @@
-import {ZeroAddress, ethers} from 'ethers';
+import {ethers} from 'ethers';
 import {TSentinel, TSentinelGetter} from '../../types';
 import ERC1155Abi from '../../../abis/IERC1155.json';
 import ERC721Abi from '../../../abis/IERC721.json';
@@ -9,15 +9,15 @@ import fs from 'fs';
 import {eventSlicer} from '../../utils';
 
 const erc20contract = new ethers.Contract(
-  ZeroAddress,
+  ethers.constants.AddressZero,
   ERC20Abi
 ) as unknown as IERC20Metadata;
 const erc1155contract = new ethers.Contract(
-  ZeroAddress,
+  ethers.constants.AddressZero,
   ERC1155Abi
 ) as unknown as IERC1155;
 const erc721contract = new ethers.Contract(
-  ZeroAddress,
+  ethers.constants.AddressZero,
   ERC721Abi
 ) as unknown as IERC721;
 
@@ -67,9 +67,9 @@ const conditions = (
         {
           signature: eventSlicer<IERC20Metadata>(
             erc20contract,
-            erc20contract.getEvent('Transfer').fragment.format('full')
+            erc20contract.interface.getEvent('Transfer').format('full')
           ),
-          expression: `from==${ZeroAddress} AND value > ${threshold}`,
+          expression: `from==${ethers.constants.AddressZero} AND value > ${threshold}`,
         },
       ],
       function: [{signature: ''}],
@@ -79,9 +79,9 @@ const conditions = (
         {
           signature: eventSlicer<IERC1155>(
             erc1155contract,
-            erc1155contract.getEvent('TransferSingle').fragment.format('full')
+            erc1155contract.interface.getEvent('TransferSingle').format('full')
           ),
-          expression: `from==${ZeroAddress} AND value > ${threshold}`,
+          expression: `from==${ethers.constants.AddressZero} AND value > ${threshold}`,
         },
       ],
       function: [{signature: ''}],
@@ -91,9 +91,9 @@ const conditions = (
         {
           signature: eventSlicer<IERC721>(
             erc721contract,
-            erc721contract.getEvent('Transfer').fragment.format('full')
+            erc721contract.interface.getEvent('Transfer').format('full')
           ),
-          expression: `from==${ZeroAddress} AND tokenId > ${threshold}`,
+          expression: `from==${ethers.constants.AddressZero} AND tokenId > ${threshold}`,
         },
       ],
       function: [{signature: ''}],

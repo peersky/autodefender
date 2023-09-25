@@ -1,17 +1,18 @@
-import {JsonRpcProvider, ZeroAddress, ethers, isAddress} from 'ethers';
+import {ethers, providers} from 'ethers';
 import {AddressInfoProps} from '../../types';
 import OwnableAbi from '../../../abis/Ownable.json';
 import {Ownable} from '../../types/typechain/Ownable';
+import {isAddress} from 'ethers/lib/utils';
 
 const contractOwnableBase = new ethers.Contract(
-  ZeroAddress,
+  ethers.constants.AddressZero,
   OwnableAbi
 ) as unknown as Ownable;
 export const findAllOwnable =
   () =>
   async (
     records: AddressInfoProps[],
-    provider: JsonRpcProvider,
+    provider: providers.JsonRpcProvider,
     excludeAccounts?: string[]
     // config: DefenderConfigType,
   ): Promise<AddressInfoProps[]> => {

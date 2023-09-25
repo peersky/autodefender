@@ -9,6 +9,7 @@ import path from 'path';
 import {DeploymentRecord, DefenderConfigNetworksType, AbiItem} from './types';
 import {BaseContract, ethers} from 'ethers';
 import {minimatch} from 'minimatch';
+import {Interface} from 'ethers/lib/utils';
 
 export type Stage = 'dev' | 'prod';
 export type Layer = 'L1' | 'L2';
@@ -99,7 +100,7 @@ type DeploymentsPerNetwork = {[k in Network]: DeploymentRecord[]};
 export const parseAbi = (abi: AbiItem) => {
   const _abi = [...abi];
   if (abi.length == 1) {
-    const transform = ethers.Interface.from(abi).format(true);
+    const transform = new ethers.utils.Interface(abi).format('full');
     return transform;
   } else {
     return _abi;
@@ -125,9 +126,9 @@ export const eventSlicer = <T extends BaseContract>(
   contract: T,
   event: string
 ): string => {
-  return contract
+  return contract.interface
     .getEvent(event as string)
-    .fragment.format('minimal')
+    .format('minimal')
     .slice(6)
     .replace(new RegExp(', ', 'g'), ',')
     .replace(new RegExp(' indexed', 'g'), '');
@@ -151,13 +152,14 @@ export function getProcessEnv(print: boolean, key: string) {
   return print ? 'X'.repeat(ret.length) : ret;
 }
 
-export function getInterfaceID(contractInterface: ethers.Interface) {
+export function getInterfaceID(contractInterface: Interface) {
   let interfaceID: any = BigInt(0);
   const selectors: string[] = [];
   //   contractInterface.fragments.forEach((fragment) => {
 
-  contractInterface.forEachFunction((fn) => {
-    if (fn.name !== 'supportsInterface') selectors.push(fn.selector);
+  Object.values(contractInterface.functions).forEach((fn) => {
+    if (fn.name !== 'supportsInterface')
+      selectors.push(contractInterface.getSighash(fn));
   });
   //   selectors = shuffle(selectors);
   for (let i = 0; i < selectors.length; i++) {

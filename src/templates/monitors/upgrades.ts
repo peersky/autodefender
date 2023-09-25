@@ -1,4 +1,4 @@
-import {ZeroAddress, ethers} from 'ethers';
+import {ethers} from 'ethers';
 import {TSentinel, TSentinelGetter} from '../../types';
 import ProxiesAbi from '../../../abis/Proxies.json';
 import fs from 'fs';
@@ -6,7 +6,7 @@ import {eventSlicer} from '../../utils';
 import {Proxies} from '../../types/typechain';
 
 const proxyContract = new ethers.Contract(
-  ZeroAddress,
+  ethers.constants.AddressZero,
   ProxiesAbi
 ) as unknown as Proxies;
 
@@ -28,25 +28,25 @@ export const upgradesMonitor =
           {
             signature: eventSlicer<Proxies>(
               proxyContract,
-              proxyContract.getEvent('AdminChanged').fragment.format('full')
+              proxyContract.interface.getEvent('AdminChanged').format('full')
             ),
           },
           {
             signature: eventSlicer<Proxies>(
               proxyContract,
-              proxyContract.getEvent('BeaconUpgraded').fragment.format('full')
+              proxyContract.interface.getEvent('BeaconUpgraded').format('full')
             ),
           },
           {
             signature: eventSlicer<Proxies>(
               proxyContract,
-              proxyContract.getEvent('DiamondCut').fragment.format('full')
+              proxyContract.interface.getEvent('DiamondCut').format('full')
             ),
           },
           {
             signature: eventSlicer<Proxies>(
               proxyContract,
-              proxyContract.getEvent('Upgraded').fragment.format('full')
+              proxyContract.interface.getEvent('Upgraded').format('full')
             ),
           },
         ],

@@ -1,11 +1,11 @@
-import {ZeroAddress, ethers} from 'ethers';
+import {ethers} from 'ethers';
 import {TSentinel, TSentinelGetter} from '../../types';
 import fs from 'fs';
 import {eventSlicer} from '../../utils';
 import {IGovernor} from '../../types/typechain';
 import GovernorAbi from '../../../abis/IGovernor.json';
 const governorContract = new ethers.Contract(
-  ZeroAddress,
+  ethers.constants.AddressZero,
   GovernorAbi
 ) as unknown as IGovernor;
 
@@ -27,39 +27,39 @@ export const governorMonitor =
           {
             signature: eventSlicer<IGovernor>(
               governorContract,
-              governorContract
+              governorContract.interface
                 .getEvent('ProposalCanceled')
-                .fragment.format('full')
+                .format('full')
             ),
           },
           {
             signature: eventSlicer<IGovernor>(
               governorContract,
-              governorContract
+              governorContract.interface
                 .getEvent('ProposalCreated')
-                .fragment.format('full')
+                .format('full')
             ),
           },
           {
             signature: eventSlicer<IGovernor>(
               governorContract,
-              governorContract
+              governorContract.interface
                 .getEvent('ProposalExecuted')
-                .fragment.format('full')
+                .format('full')
             ),
           },
           {
             signature: eventSlicer<IGovernor>(
               governorContract,
-              governorContract.getEvent('VoteCast').fragment.format('full')
+              governorContract.interface.getEvent('VoteCast').format('full')
             ),
           },
           {
             signature: eventSlicer<IGovernor>(
               governorContract,
-              governorContract
+              governorContract.interface
                 .getEvent('VoteCastWithParams')
-                .fragment.format('full')
+                .format('full')
             ),
           },
         ],
