@@ -22,7 +22,7 @@ export const accountEthMonitor =
         event: [{signature: ''}],
         function: [{signature: ''}],
       },
-      'autotask-condition': './templates/functions/ethBalanceCheck/index.js',
+      'autotask-condition': './templates/functions/ethBalanceCheck',
       'autotask-trigger': trigger.path ? trigger.path : undefined,
     };
     SecretRequires;

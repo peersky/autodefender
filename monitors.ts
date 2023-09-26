@@ -11,18 +11,17 @@ export async function config(print: boolean): Promise<DefenderServerless> {
   console.log(
     'Deploying ',
     Object.keys(_MonitoringResources.monitors).length,
-    ' Monitors',
-    _MonitoringResources.functions && (_MonitoringResources.functions as any)
+    ' Monitors'
   );
   const ret: DefenderServerless = {
-    service: 'contracts' + df.projectName,
+    service: 'monitors' + df.projectName,
     configValidationMode: 'error',
     frameworkVersion: '3',
     plugins: ['@openzeppelin/defender-serverless'],
     provider: {
       name: 'defender',
       stage: "${opt:stage, 'dev'}",
-      stackName: 'contracts_' + df.projectName,
+      stackName: 'monitors_' + df.projectName,
       ssot: df.ssot,
     },
     defender: {

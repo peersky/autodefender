@@ -107,16 +107,17 @@ yargs(hideBin(process.argv))
         contractsFormatter(deploymentRecords)
       );
 
-      const child = spawn('sls', [
-        'deploy',
-        '--stage',
-        'dev',
-        '--config',
-        'contracts.ts',
-      ]);
-      child.stdout.on('data', (data) => {
-        if (!data.toString().length < 200) process.stdout.write(data);
-      });
+      const child = spawn(
+        'sls',
+        ['deploy', '--stage', 'dev', '--config', 'contracts.ts']
+        // {stdio: [stdin, 'pipe', 'pipe'], encoding: 'utf8', shell: true}
+      );
+      child.stdout.pipe(process.stdout);
+      child.stderr.pipe(process.stderr);
+      // child.stdout.on('data', (data) => {
+      //   // if (!data.toString().length < 500)
+      //   process.stdout.write(data);
+      // });
     }
   )
   .command(
@@ -149,11 +150,16 @@ yargs(hideBin(process.argv))
         const child = spawn(
           'sls',
           ['deploy', '--stage', 'dev', '--config', 'monitors.ts'],
-          {stdio: 'overlapped'}
+          // {stdio: 'overlapped'}
+          {serialization: 'advanced'}
         );
-        child.stdio;
+        // child.sti;
+        // child.stdout.pipe(process.stdout);
+        // child.stderr.pipe(process.stderr);
+        // process.stdin.pipe(child.stdin);
+        // child.stdio;
         child.stdout.on('data', (data) => {
-          if (data.toString().length < 1000) process.stdout.write(data);
+          if (data.toString().length < 256) process.stdout.write(data);
         });
       }
     }

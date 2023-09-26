@@ -56,7 +56,6 @@ export const findERC20Contracts =
         supportsInterface = false;
       }
 
-      // console.log(supportsAC, supportsACDA);
       if (supportsInterface && !excludeAccounts?.includes(record.address)) {
         contracts.push({
           account: {address: record.address, abi: erc20abi},

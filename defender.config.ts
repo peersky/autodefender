@@ -29,7 +29,6 @@ const config: DefenderConfigType = {
     matic: {rpc: polygonRPC, directoryName: 'polygon'},
     mainnet: {rpc: mainnerRPC, directoryName: 'mainnet'},
   },
-  // relays: { "lol"}
   monitors: {
     Ownership: {
       filter: findAllOwnable(),
@@ -38,51 +37,51 @@ const config: DefenderConfigType = {
         channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
       },
     },
-    // 'Large-Mint-ERC1155': {
-    //   notification: {
-    //     channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
-    //   },
-    //   filter: findContractsWithInterface(erc1155abi),
-    //   monitor: mintMonitor('ERC1155', '10'),
-    // },
-    // 'Large-Mint-ERC20': {
-    //   notification: {
-    //     channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
-    //   },
-    //   filter: findERC20Contracts(),
-    //   monitor: mintMonitor('ERC20', '100'),
-    // },
-    // 'Large-Mint-ERC721': {
-    //   notification: {
-    //     channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
-    //   },
-    //   filter: findContractsWithInterface(erc721abi),
-    //   monitor: mintMonitor('ERC721', '100'),
-    // },
-    // 'attack-detector': {
-    //   notification: {
-    //     channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
-    //   },
-    //   monitor: attackDetectorMonitor(),
-    //   filter: all(),
-    // },
-    // Proxies: {
-    //   notification: {
-    //     channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
-    //   },
-    //   monitor: upgradesMonitor(),
-    //   filter: all(),
-    // },
-    // AccessControl: {
-    //   notification: {
-    //     channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
-    //   },
-    //   monitor: accessMonitor(),
-    //   filter: findContractsWithInterfaces([
-    //     AccessContolAbi,
-    //     AccessControlDefaultAdminAbi,
-    //   ]),
-    // },
+    'Large-Mint-ERC1155': {
+      notification: {
+        channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
+      },
+      filter: findContractsWithInterface(erc1155abi),
+      monitor: mintMonitor('ERC1155', '10'),
+    },
+    'Large-Mint-ERC20': {
+      notification: {
+        channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
+      },
+      filter: findERC20Contracts(),
+      monitor: mintMonitor('ERC20', '100'),
+    },
+    'Large-Mint-ERC721': {
+      notification: {
+        channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
+      },
+      filter: findContractsWithInterface(erc721abi),
+      monitor: mintMonitor('ERC721', '100'),
+    },
+    'attack-detector': {
+      notification: {
+        channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
+      },
+      monitor: attackDetectorMonitor(),
+      filter: all(),
+    },
+    Proxies: {
+      notification: {
+        channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
+      },
+      monitor: upgradesMonitor(),
+      filter: all(),
+    },
+    AccessControl: {
+      notification: {
+        channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
+      },
+      monitor: accessMonitor(),
+      filter: findContractsWithInterfaces([
+        AccessContolAbi,
+        AccessControlDefaultAdminAbi,
+      ]),
+    },
   },
 
   outDir: './out',

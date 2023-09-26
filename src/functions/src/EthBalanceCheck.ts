@@ -11,7 +11,7 @@ export async function handler(event: AutotaskEvent) {
   if (!event.credentials) {
     throw new Error('Account balance checker action must have relay connected');
   }
-  const provider = new DefenderRelayProvider(event.credentials as any); //This must be addressed in typescript package
+  const provider = new DefenderRelayProvider(event as any); //This must be addressed in typescript package
   const scopedSecrets = ScopedSecretsProvider(event);
 
   const _threshold = scopedSecrets[`LOW_ETH_TRESHOLD`];
