@@ -1,8 +1,8 @@
 import {Contract, ethers, providers} from 'ethers';
-import {AddressInfoProps} from '../../types';
-import erc20abi from '../../../abis/IERC20Metadata.json';
+import {AddressInfo, MatcherFindings} from '../../src/types';
+import erc20abi from '../../abis/IERC20Metadata.json';
 
-import {IERC20Metadata} from '../../types/typechain/IERC20Metadata';
+import {IERC20Metadata} from '../../src/types/typechain/IERC20Metadata';
 
 const erc20contract = new Contract(
   ethers.constants.AddressZero,
@@ -11,12 +11,12 @@ const erc20contract = new Contract(
 export const findERC20Contracts =
   (excludeAccounts?: string[]) =>
   async (
-    records: AddressInfoProps[],
+    records: AddressInfo[],
     provider: providers.JsonRpcProvider
-  ): Promise<AddressInfoProps[]> => {
+  ): Promise<MatcherFindings[]> => {
     process.stdout.write('findERC20Contracts... ');
 
-    const contracts: AddressInfoProps[] = [];
+    const contracts: MatcherFindings[] = [];
     const contractConnected = erc20contract.connect(
       provider
     ) as unknown as IERC20Metadata;
@@ -59,7 +59,7 @@ export const findERC20Contracts =
       // console.log(supportsAC, supportsACDA);
       if (supportsInterface && !excludeAccounts?.includes(record.address)) {
         contracts.push({
-          address: record.address,
+          account: {address: record.address, abi: erc20abi},
         });
       }
     }

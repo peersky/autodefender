@@ -1,20 +1,22 @@
 import {ethers} from 'ethers';
-import {TSentinel, TSentinelGetter} from '../../types';
+import {TSentinel, TSentinelGetter} from '../../src/types';
 import fs from 'fs';
-import {eventSlicer} from '../../utils';
-import {IGovernor} from '../../types/typechain';
-import GovernorAbi from '../../../abis/IGovernor.json';
+import {eventSlicer} from '../../src/utils';
+import {IGovernor} from '../../src/types/typechain';
+import GovernorAbi from '../../abis/IGovernor.json';
 const governorContract = new ethers.Contract(
   ethers.constants.AddressZero,
   GovernorAbi
 ) as unknown as IGovernor;
 
 const defaultMessage = fs
-  .readFileSync('./src/templates/messages/info-message.md', 'utf8')
+  .readFileSync('./templates/messages/info-message.md', 'utf8')
   .toString();
 
 export const governorMonitor =
-  (name = 'Governor control monitor'): TSentinelGetter =>
+  (
+    name = 'Governor control monitor'
+  ): TSentinelGetter<Record<string, never>, Record<string, never>> =>
   async () => {
     const newMonitor: TSentinel = {
       'risk-category': 'GOVERNANCE',

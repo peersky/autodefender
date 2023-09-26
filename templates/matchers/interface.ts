@@ -1,9 +1,9 @@
 import {Contract, ethers, providers} from 'ethers';
-import {AbiItem, AddressInfoProps} from '../../types';
-import erc165abi from '../../../abis/IERC165.json';
-import {getInterfaceID} from '../../utils';
+import {AbiItem, AddressInfo, MatcherFindings} from '../../src/types';
+import erc165abi from '../../abis/IERC165.json';
+import {getInterfaceID} from '../../src/utils';
 
-import {IERC165} from '../../types/typechain/IERC165';
+import {IERC165} from '../../src/types/typechain/IERC165';
 
 const contract165Base = new ethers.Contract(
   ethers.constants.AddressZero,
@@ -13,9 +13,9 @@ const contract165Base = new ethers.Contract(
 export const findContractsWithInterface =
   (abiOrInterffaceId: AbiItem | string, excludeAccounts?: string[]) =>
   async (
-    records: AddressInfoProps[],
+    records: AddressInfo[],
     provider: providers.JsonRpcProvider
-  ): Promise<AddressInfoProps[]> => {
+  ): Promise<MatcherFindings[]> => {
     process.stdout.write('findContractsWithInterface... ');
     let interfaceId;
     if (typeof abiOrInterffaceId === 'string') {
@@ -28,7 +28,7 @@ export const findContractsWithInterface =
       interfaceId = getInterfaceID(contractBase.interface);
     }
 
-    const contracts = [];
+    const contracts: MatcherFindings[] = [];
     const contract165Connected = contract165Base.connect(provider);
     for (const record of records) {
       process.stdout.clearLine(0);
@@ -50,7 +50,13 @@ export const findContractsWithInterface =
       }
       if (supportsInterface && !excludeAccounts?.includes(record.address)) {
         contracts.push({
-          address: record.address,
+          account: {
+            address: record.address,
+            abi:
+              typeof abiOrInterffaceId !== 'string'
+                ? abiOrInterffaceId
+                : undefined,
+          },
         });
       }
     }
@@ -68,9 +74,9 @@ export const findContractsWithInterface =
 export const findContractsWithInterfaces =
   (abisOrIds: AbiItem[] | string[], excludeAccounts?: string[]) =>
   async (
-    records: AddressInfoProps[],
+    records: AddressInfo[],
     provider: providers.JsonRpcProvider
-  ): Promise<AddressInfoProps[]> => {
+  ): Promise<MatcherFindings[]> => {
     const results = [];
     let abiorId: AbiItem | string;
     for (abiorId of abisOrIds) {

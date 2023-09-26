@@ -3,7 +3,7 @@ import {
   SentinelConditionResponse,
   SentinelConditionRequest,
   BlockTriggerEvent,
-} from '@openzeppelin/defender-autotask-utils';
+} from 'defender-autotask-utils';
 import {ethers} from 'ethers';
 export async function handler(event: AutotaskEvent) {
   const request = event?.request?.body as any as SentinelConditionRequest;

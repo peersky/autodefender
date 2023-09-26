@@ -1,14 +1,16 @@
-import {TFortaSentinel, TSentinelGetter} from '../../types';
-import OwnableAbi from '../../../abis/Ownable.json';
+import {TFortaSentinel, TSentinelGetter} from '../../src/types';
+import OwnableAbi from '../../abis/Ownable.json';
 
 import fs from 'fs';
 
 const defaultMessage = fs
-  .readFileSync('./src/templates/messages/forta-message.md', 'utf8')
+  .readFileSync('./templates/messages/forta-message.md', 'utf8')
   .toString();
 
 export const attackDetectorMonitor =
-  (name = 'Attack detector'): TSentinelGetter =>
+  (
+    name = 'Attack detector'
+  ): TSentinelGetter<Record<string, never>, Record<string, never>> =>
   async () => {
     const newMonitor: TFortaSentinel = {
       'risk-category': 'SUSPICIOUS',

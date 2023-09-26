@@ -1,10 +1,12 @@
 import {BytesLike, providers} from 'ethers';
-import {Network} from '@openzeppelin/defender-base-client';
+import {Network, Networks} from '@openzeppelin/defender-base-client';
 import {
   DefenderSubscriberRiskCategory,
   YCategory,
   YFortaSentinel,
   YNotification,
+  YRelayer,
+  YSecret,
   YSentinel,
 } from '@openzeppelin/defender-serverless/lib/types';
 import {Fragment} from 'ethers/lib/utils';
@@ -33,11 +35,17 @@ export interface NotifyConfig {
 //   notifyConfig: NotifyConfig;
 //   config?: any;
 // }
+
 export interface DefenderConfigType {
   path: string;
+  ssot: boolean;
   projectName: string;
   networks?: DefenderConfigNetworksType;
   monitors?: {[key: string]: DefenderMonitorTemplate};
+  extractedAccountsMonitoring: {
+    [key: string]: Omit<DefenderMonitorTemplate, 'priviledgedAccountFilter'>;
+  };
+  relayers?: {[key: string]: YRelayer};
   // interfacesToNotify: {
   //   standard?: Partial<
   //     Record<keyof TemplatedMonitoringInterfaceType, InterfaceConfig>
@@ -45,7 +53,6 @@ export interface DefenderConfigType {
   //   custom?: CustomMonitoringType;
   // };
   outDir: string;
-  accounts: DefenderConfigAccountsType;
   excludeDeployments: string[];
   excludeAccounts: string[];
 }
@@ -54,11 +61,15 @@ export interface CustomMonitoringInterface {
   notification: YNotification;
 }
 export type AbiItem = ReadonlyArray<Fragment | JsonFragment | string>;
-export interface AddressInfoProps {
+export interface AddressInfo {
   address: string;
   abi?: ReadonlyArray<Fragment | JsonFragment | string>;
 }
-
+export type RelationshipType =
+  | 'Priveledged'
+  | 'Benenificiary'
+  | 'Payee'
+  | 'Oracle';
 export type TSentinel = Omit<
   YSentinel,
   'notify-config' | 'addresses' | 'autotask-condition' | 'autotask-trigger'
@@ -79,26 +90,55 @@ export interface PriveledgedAccountOutput {
   account: string;
   riskCategory: DefenderSubscriberRiskCategory;
 }
-interface TSentinelOutput {
+export interface CustomRelay {
+  key: string;
+}
+
+export type ActionParam<T> = {
+  relayNetwork?: Network;
+  secrets?: T;
+  customRelay?: string;
+};
+export interface ActionsParams<T, K> {
+  condition?: ActionParam<T>;
+  trigger?: ActionParam<K>;
+}
+export interface TSentinelOutput<T, K> {
   newMonitor: TSentinel;
   defaultMessage: string;
+  actionsParams?: ActionsParams<T, K>;
 }
-export type TSentinelGetter = (
-  contractAddresses: AddressInfoProps[],
-  provider: providers.JsonRpcProvider
-) => Promise<TSentinelOutput>;
+export type TSentinelGetter<T, K> = (
+  contractAddresses: AddressInfo[],
+  provider: providers.JsonRpcProvider,
+  networkName: Network
+) => Promise<TSentinelOutput<T, K>>;
+
+export interface ActionSpec {
+  path: string;
+  params: ActionParam<any>;
+}
+export interface RelatedAccount extends AddressInfo {
+  relationship: RelationshipType;
+  to: string;
+}
+export interface MatcherFindings {
+  account: AddressInfo;
+  related?: RelatedAccount[];
+}
 export interface DefenderMonitorTemplate {
   notification: NotifyConfig;
-  monitor: TSentinelGetter;
+  monitor: TSentinelGetter<
+    Record<string, string | never>,
+    Record<string, string | never>
+  >;
   // channels: YNotification[];
   triggerPath?: string;
-  contractsFilter: (
-    contractInfo: AddressInfoProps[],
+  filter: (
+    contractInfo: AddressInfo[],
     provider: providers.JsonRpcProvider
-  ) => Promise<AddressInfoProps[]>;
-  priviledgedAccountFilter?: (
-    contractInfo: AddressInfoProps[]
-  ) => Promise<string[]>;
+  ) => Promise<MatcherFindings[]>;
+  priviledgedAccountFilter?: (contractInfo: AddressInfo[]) => Promise<string[]>;
 }
 export interface CustomMonitor {
   abi: ReadonlyArray<Fragment | JsonFragment | string>;

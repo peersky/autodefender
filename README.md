@@ -34,7 +34,7 @@ Open or create new `defender.config.ts` in root of this repository.
       notification: { // Notifyconfig
         channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))], //availible getters in /src/templates/notifications
       },
-      contractsFilter: findERC20Contracts(), //see availible matchers in src/templates/matchers
+      filter: findERC20Contracts(), //see availible matchers in src/templates/matchers
       monitor: mintMonitor('ERC20', '100'), //see availible monitors in src/templates/monitors
       //ToDo: Add trigger templates here
     },

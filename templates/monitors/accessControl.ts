@@ -1,20 +1,22 @@
 import {ethers} from 'ethers';
-import {TSentinel, TSentinelGetter} from '../../types';
+import {TSentinel, TSentinelGetter} from '../../src/types';
 import fs from 'fs';
-import {eventSlicer} from '../../utils';
-import {AccessControlDefaultAdminRules} from '../../types/typechain';
-import AccessControlAbi from '../../../abis/AccessControlDefaultAdminRules.json';
+import {eventSlicer} from '../../src/utils';
+import {AccessControlDefaultAdminRules} from '../../src/types/typechain';
+import AccessControlAbi from '../../abis/AccessControlDefaultAdminRules.json';
 const accessContract = new ethers.Contract(
   ethers.constants.AddressZero,
   AccessControlAbi
 ) as unknown as AccessControlDefaultAdminRules;
 
 const defaultMessage = fs
-  .readFileSync('./src/templates/messages/info-message.md', 'utf8')
+  .readFileSync('./templates/messages/info-message.md', 'utf8')
   .toString();
 
 export const accessMonitor =
-  (name = 'Access control monitor'): TSentinelGetter =>
+  (
+    name = 'Access control monitor'
+  ): TSentinelGetter<Record<string, never>, Record<string, never>> =>
   async () => {
     const newMonitor: TSentinel = {
       'risk-category': 'ACCESS-CONTROL',

@@ -126,9 +126,9 @@ export const eventSlicer = <T extends BaseContract>(
   contract: T,
   event: string
 ): string => {
-  return contract.interface
-    .getEvent(event as string)
-    .format('minimal')
+  // const _evt = new Interface(event).getEvent(event).format('full');
+  // console.log('_evt', _evt);
+  return event
     .slice(6)
     .replace(new RegExp(', ', 'g'), ',')
     .replace(new RegExp(' indexed', 'g'), '');

@@ -1,9 +1,9 @@
 import {
   AutotaskEvent,
   SentinelConditionResponse,
-} from '@openzeppelin/defender-autotask-utils';
-import {DefenderRelayProvider} from '@openzeppelin/defender-relay-client/lib/ethers';
-import ethers from 'ethers';
+} from 'defender-autotask-utils';
+import {DefenderRelayProvider} from 'defender-relay-client/lib/ethers';
+import ethers, {BigNumberish} from 'ethers';
 import {ScopedSecretsProvider} from './utils/scopedSecrets';
 
 export async function handler(event: AutotaskEvent) {
@@ -14,8 +14,8 @@ export async function handler(event: AutotaskEvent) {
   const provider = new DefenderRelayProvider(event.credentials as any); //This must be addressed in typescript package
   const scopedSecrets = ScopedSecretsProvider(event);
 
-  const _threshold = scopedSecrets[`LOW_GAS_TRESHOLD`];
-  if (!_threshold) throw new Error('Gas threshold not set');
+  const _threshold = scopedSecrets[`LOW_ETH_TRESHOLD`];
+  if (!_threshold) throw new Error('Eth threshold not set');
 
   const retval: SentinelConditionResponse = {matches: []};
   for (const evt of match.events) {
@@ -41,3 +41,8 @@ export async function handler(event: AutotaskEvent) {
   }
   return retval;
 }
+
+export interface expectedSecrets {
+  LOW_ETH_THRESHOLD: string;
+}
+export const SecretRequires: expectedSecrets = {LOW_ETH_THRESHOLD: '0'};

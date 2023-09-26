@@ -1,12 +1,12 @@
 import {ethers} from 'ethers';
-import {TSentinel, TSentinelGetter} from '../../types';
-import ERC1155Abi from '../../../abis/IERC1155.json';
-import ERC721Abi from '../../../abis/IERC721.json';
-import ERC20Abi from '../../../abis/IERC20.json';
-import {IERC1155, IERC20Metadata, IERC721} from '../../types/typechain';
+import {TSentinel, TSentinelGetter} from '../../src/types';
+import ERC1155Abi from '../../abis/IERC1155.json';
+import ERC721Abi from '../../abis/IERC721.json';
+import ERC20Abi from '../../abis/IERC20.json';
+import {IERC1155, IERC20Metadata, IERC721} from '../../src/types/typechain';
 
 import fs from 'fs';
-import {eventSlicer} from '../../utils';
+import {eventSlicer} from '../../src/utils';
 
 const erc20contract = new ethers.Contract(
   ethers.constants.AddressZero,
@@ -22,7 +22,7 @@ const erc721contract = new ethers.Contract(
 ) as unknown as IERC721;
 
 const defaultMessage = fs
-  .readFileSync('./src/templates/messages/info-message.md', 'utf8')
+  .readFileSync('./templates/messages/info-message.md', 'utf8')
   .toString();
 type SupportedInterfaces = 'ERC20' | 'ERC721' | 'ERC1155';
 export const mintMonitor =
@@ -31,7 +31,7 @@ export const mintMonitor =
     threshold = '0',
     name?: string,
     to?: string[]
-  ): TSentinelGetter =>
+  ): TSentinelGetter<Record<string, never>, Record<string, never>> =>
   async () => {
     let abi;
     switch (type) {

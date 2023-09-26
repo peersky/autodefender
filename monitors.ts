@@ -4,13 +4,15 @@ import df from './defender.config';
 import MonitoringResources from './out/monitors.json';
 import {YSentinel} from '@openzeppelin/defender-serverless/lib/types';
 export async function config(print: boolean): Promise<DefenderServerless> {
+  const _MonitoringResources = MonitoringResources as any;
   if (!df.projectName)
     throw new Error('Project name not set, fix defender.config.ts');
 
   console.log(
     'Deploying ',
-    Object.keys(MonitoringResources.monitors).length,
-    ' Monitors'
+    Object.keys(_MonitoringResources.monitors).length,
+    ' Monitors',
+    _MonitoringResources.functions && (_MonitoringResources.functions as any)
   );
   const ret: DefenderServerless = {
     service: 'contracts' + df.projectName,
@@ -21,16 +23,20 @@ export async function config(print: boolean): Promise<DefenderServerless> {
       name: 'defender',
       stage: "${opt:stage, 'dev'}",
       stackName: 'contracts_' + df.projectName,
-      ssot: false,
+      ssot: df.ssot,
     },
     defender: {
       key: getProcessEnv(print, 'DEFENDER_KEY'),
       secret: getProcessEnv(print, 'DEFENDER_SECRET'),
     },
+    functions:
+      _MonitoringResources.functions && (_MonitoringResources.functions as any),
     resources: {
       Resources: {
-        notifications: MonitoringResources.notifications as any,
-        sentinels: MonitoringResources.monitors as any as Record<
+        secrets: {stack: _MonitoringResources?.secrets},
+        relayers: _MonitoringResources?.relayers,
+        notifications: _MonitoringResources.notifications,
+        sentinels: _MonitoringResources.monitors as any as Record<
           string,
           YSentinel
         >,

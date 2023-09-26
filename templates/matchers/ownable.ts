@@ -1,7 +1,7 @@
 import {ethers, providers} from 'ethers';
-import {AddressInfoProps} from '../../types';
-import OwnableAbi from '../../../abis/Ownable.json';
-import {Ownable} from '../../types/typechain/Ownable';
+import {AddressInfo, MatcherFindings} from '../../src/types';
+import OwnableAbi from '../../abis/Ownable.json';
+import {Ownable} from '../../src/types/typechain/Ownable';
 import {isAddress} from 'ethers/lib/utils';
 
 const contractOwnableBase = new ethers.Contract(
@@ -11,13 +11,17 @@ const contractOwnableBase = new ethers.Contract(
 export const findAllOwnable =
   () =>
   async (
-    records: AddressInfoProps[],
+    records: AddressInfo[],
     provider: providers.JsonRpcProvider,
     excludeAccounts?: string[]
     // config: DefenderConfigType,
-  ): Promise<AddressInfoProps[]> => {
+  ): Promise<MatcherFindings[]> => {
     const owners: string[] = [];
-    const ownable: AddressInfoProps[] = [];
+    const findings: MatcherFindings[] = [];
+    // const ownable: {
+    //   findings: AddressInfo;
+    //   priviledgedAccountFindings: AddressInfo[];
+    // }[] = [];
     const contractOwnableConnected = contractOwnableBase.connect(provider);
     for (const record of records) {
       process.stdout.clearLine(0);
@@ -33,15 +37,20 @@ export const findAllOwnable =
 
           if (isOwnable) {
             if (!owners.includes(owner) && !excludeAccounts?.includes(owner))
-              owners.push(owner);
-
-            if (
-              !ownable.some((o) => o.address === record.address) &&
-              !excludeAccounts?.includes(record.address)
-            ) {
-              // console.log(record.address);
-              ownable.push({address: record.address});
-            }
+              findings.push({
+                account: {address: record.address},
+                related:
+                  !excludeAccounts?.includes(owner) &&
+                  owner !== ethers.constants.AddressZero
+                    ? [
+                        {
+                          address: owner,
+                          relationship: 'Priveledged',
+                          to: record.address,
+                        },
+                      ]
+                    : [],
+              });
           }
         });
       } catch (e: any) {
@@ -50,6 +59,6 @@ export const findAllOwnable =
     }
     process.stdout.clearLine(0);
     process.stdout.cursorTo(0);
-    console.log('Found ', ownable.length, 'Ownable contracts');
-    return ownable;
+    console.log('Found ', findings.length, 'Ownable contracts');
+    return findings;
   };
