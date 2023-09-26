@@ -30,26 +30,23 @@ export const upgradesMonitor =
           {
             signature: eventSlicer<Proxies>(
               proxyContract,
-              proxyContract.interface.getEvent('AdminChanged').format('full')
+              'AdminChanged(address,address)'
             ),
           },
           {
             signature: eventSlicer<Proxies>(
               proxyContract,
-              proxyContract.interface.getEvent('BeaconUpgraded').format('full')
+              'BeaconUpgraded(address)'
             ),
           },
           {
             signature: eventSlicer<Proxies>(
               proxyContract,
-              proxyContract.interface.getEvent('DiamondCut').format('full')
+              'DiamondCut((address,uint8,bytes4[])[],address,bytes)'
             ),
           },
           {
-            signature: eventSlicer<Proxies>(
-              proxyContract,
-              proxyContract.interface.getEvent('Upgraded').format('full')
-            ),
+            signature: eventSlicer<Proxies>(proxyContract, 'Upgraded(address)'),
           },
         ],
         function: [],

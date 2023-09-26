@@ -108,6 +108,9 @@ const config: DefenderConfigType = {
     'PolygonLand_V1',
     'FAKE*',
     'DAIMedianize',
+    'DAI',
+    'WrappedEther',
+    'Old_*',
   ],
   excludeAccounts: ['0x000000000000AAeB6D7670E522A718067333cd4E'],
 };

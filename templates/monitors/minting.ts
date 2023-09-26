@@ -67,7 +67,7 @@ const conditions = (
         {
           signature: eventSlicer<IERC20Metadata>(
             erc20contract,
-            erc20contract.interface.getEvent('Transfer').format('full')
+            'Transfer(address,address,uint256)'
           ),
           expression: `from==${ethers.constants.AddressZero} AND value > ${threshold}`,
         },
@@ -79,7 +79,7 @@ const conditions = (
         {
           signature: eventSlicer<IERC1155>(
             erc1155contract,
-            erc1155contract.interface.getEvent('TransferSingle').format('full')
+            'TransferSingle(address,address,address,uint256,uint256)'
           ),
           expression: `from==${ethers.constants.AddressZero} AND value > ${threshold}`,
         },
@@ -91,7 +91,7 @@ const conditions = (
         {
           signature: eventSlicer<IERC721>(
             erc721contract,
-            erc721contract.interface.getEvent('Transfer').format('full')
+            'Transfer(address,address,uint256)'
           ),
           expression: `from==${ethers.constants.AddressZero} AND tokenId > ${threshold}`,
         },

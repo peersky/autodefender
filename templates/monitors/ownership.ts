@@ -29,13 +29,13 @@ export const generateOwnableMonitor =
       conditions: {
         event: [
           {
-            signature: contractOwnableBase.interface
-              .getEvent('OwnershipTransferred')
-              .format('full'),
-            // signature: eventSlicer<Ownable>(
-            //   contractOwnableBase,
-            //   'OwnershipTransferred(address,address)'
-            // ),s
+            // signature: contractOwnableBase.interface
+            //   .getEvent('OwnershipTransferred')
+            //   .format('minimal'),
+            signature: eventSlicer<Ownable>(
+              contractOwnableBase,
+              'OwnershipTransferred(address,address)'
+            ),
           },
         ],
         function: [{signature: ''}],

@@ -29,39 +29,31 @@ export const governorMonitor =
           {
             signature: eventSlicer<IGovernor>(
               governorContract,
-              governorContract.interface
-                .getEvent('ProposalCanceled')
-                .format('full')
+              'ProposalCanceled(uint256)'
             ),
           },
           {
             signature: eventSlicer<IGovernor>(
               governorContract,
-              governorContract.interface
-                .getEvent('ProposalCreated')
-                .format('full')
+              'ProposalCreated(uint256,address,address[],uint256[],string[],bytes[],uint256,uint256,string)'
             ),
           },
           {
             signature: eventSlicer<IGovernor>(
               governorContract,
-              governorContract.interface
-                .getEvent('ProposalExecuted')
-                .format('full')
+              'ProposalExecuted(uint256)'
             ),
           },
           {
             signature: eventSlicer<IGovernor>(
               governorContract,
-              governorContract.interface.getEvent('VoteCast').format('full')
+              'VoteCast(address,uint256,uint8,uint256,string)'
             ),
           },
           {
             signature: eventSlicer<IGovernor>(
               governorContract,
-              governorContract.interface
-                .getEvent('VoteCastWithParams')
-                .format('full')
+              'VoteCastWithParams(address,uint256,uint8,uint256,string,bytes)'
             ),
           },
         ],

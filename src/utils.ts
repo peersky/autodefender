@@ -124,11 +124,14 @@ export const sortByNetwork = (
 };
 export const eventSlicer = <T extends BaseContract>(
   contract: T,
-  event: string
+  event: keyof T['interface']['events']
 ): string => {
+  const _evt = contract.interface
+    .getEvent(event as any as string)
+    .format('minimal');
   // const _evt = new Interface(event).getEvent(event).format('full');
   // console.log('_evt', _evt);
-  return event
+  return _evt
     .slice(6)
     .replace(new RegExp(', ', 'g'), ',')
     .replace(new RegExp(' indexed', 'g'), '');

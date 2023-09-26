@@ -29,55 +29,43 @@ export const accessMonitor =
           {
             signature: eventSlicer<AccessControlDefaultAdminRules>(
               accessContract,
-              accessContract.interface
-                .getEvent('RoleAdminChanged')
-                .format('full')
+              'RoleAdminChanged(bytes32,bytes32,bytes32)'
             ),
           },
           {
             signature: eventSlicer<AccessControlDefaultAdminRules>(
               accessContract,
-              accessContract.interface.getEvent('RoleGranted').format('full')
+              'RoleGranted(bytes32,address,address)'
             ),
           },
           {
             signature: eventSlicer<AccessControlDefaultAdminRules>(
               accessContract,
-              accessContract.interface
-                .getEvent('RoleAdminChanged')
-                .format('full')
+              'RoleRevoked(bytes32,address,address)'
             ),
           },
           {
             signature: eventSlicer<AccessControlDefaultAdminRules>(
               accessContract,
-              accessContract.interface
-                .getEvent('DefaultAdminTransferScheduled')
-                .format('full')
+              'DefaultAdminDelayChangeCanceled()'
             ),
           },
           {
             signature: eventSlicer<AccessControlDefaultAdminRules>(
               accessContract,
-              accessContract.interface
-                .getEvent('DefaultAdminTransferCanceled')
-                .format('full')
+              'DefaultAdminDelayChangeScheduled(uint48,uint48)'
             ),
           },
           {
             signature: eventSlicer<AccessControlDefaultAdminRules>(
               accessContract,
-              accessContract.interface
-                .getEvent('DefaultAdminDelayChangeScheduled')
-                .format('full')
+              'DefaultAdminTransferCanceled()'
             ),
           },
           {
             signature: eventSlicer<AccessControlDefaultAdminRules>(
               accessContract,
-              accessContract.interface
-                .getEvent('DefaultAdminDelayChangeCanceled')
-                .format('full')
+              'DefaultAdminTransferScheduled(address,uint48)'
             ),
           },
         ],

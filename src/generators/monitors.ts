@@ -92,7 +92,7 @@ export const monitorsGenerator = async (
           });
       }
 
-      // await Promise.all(Object.values(_monitorPromises));
+      await Promise.all(Object.values(_monitorPromises));
       for (const accountMonitorName in config.extractedAccountsMonitoring) {
         console.log(
           `Building ${accountMonitorName} monitor for ${networkKey}...`
