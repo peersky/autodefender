@@ -1,12 +1,11 @@
 import {BytesLike, providers} from 'ethers';
-import {Network, Networks} from '@openzeppelin/defender-base-client';
+import {Network} from '@openzeppelin/defender-base-client';
 import {
   DefenderSubscriberRiskCategory,
   YCategory,
   YFortaSentinel,
   YNotification,
   YRelayer,
-  YSecret,
   YSentinel,
 } from '@openzeppelin/defender-serverless/lib/types';
 import {Fragment} from 'ethers/lib/utils';

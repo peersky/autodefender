@@ -6,24 +6,19 @@ import {
   TSentinelGetter,
   MatcherFindings,
   RelatedAccount,
-  TSentinel,
-  TFortaSentinel,
-  ActionParam,
-  ActionsParams,
-  TSentinelOutput,
 } from '../types';
 import {
   YAutotask,
-  YBlockSentinel,
-  YFortaSentinel,
   YNotification,
   YRelayer,
   YSecret,
   YSentinel,
 } from '@openzeppelin/defender-serverless/lib/types';
-import {Network, Networks} from '@openzeppelin/defender-base-client';
+import {Network} from '@openzeppelin/defender-base-client';
 import {sortByNetwork} from '../utils';
 import _ from 'lodash';
+import {generateFunction} from './functions';
+import {generateRelay} from './relays';
 
 export const monitorsGenerator = async (
   deploymentRecords: DeploymentRecord[],
@@ -223,7 +218,7 @@ const monitorBuilder = async (
     functions[`_${conditionHash}`] = conditionYAutotask;
     if (actionsParams?.condition?.secrets) {
       for (const key in actionsParams.condition.secrets) {
-        secrets[conditionYAutotask.name + '_' + networkKey + key] =
+        secrets[conditionYAutotask.name + '_' + key] =
           actionsParams.condition.secrets[key];
       }
     }
@@ -234,7 +229,7 @@ const monitorBuilder = async (
     functions[`_${triggerHash}`] = triggerYAutotask;
     if (actionsParams?.trigger?.secrets) {
       for (const key in actionsParams.trigger.secrets) {
-        secrets[triggerYAutotask.name + '_' + networkKey + key] =
+        secrets[triggerYAutotask.name + '_' + key] =
           actionsParams.trigger.secrets[key];
       }
     }
@@ -254,42 +249,6 @@ const monitorBuilder = async (
   return {monitor: sentinel, autotasks: functions, secrets};
 };
 
-const generateFunction = (
-  functionPath: string,
-  props?: ActionParam<any>
-): YAutotask => {
-  const relayName = props?.relayNetwork
-    ? props?.customRelay ?? 'DEFAULT_READER' + '_' + props?.relayNetwork
-    : undefined;
-  const relayResourcePath =
-    '${self:resources.Resources.relayers.' + relayName + '}';
-  const action: YAutotask = {
-    name: _.last(functionPath.split('/')) as string,
-    path: functionPath,
-    trigger: {
-      type: 'sentinel',
-    },
-    relayer: relayName ? (relayResourcePath as any as YRelayer) : undefined,
-    paused: false,
-  };
-
-  if (props?.relayNetwork) {
-    action.name += '_' + props.relayNetwork;
-    const relativeYrelay =
-      '${self:resources.Resources.relayers.' + relayName + '}';
-
-    action.relayer = relativeYrelay as any as YRelayer;
-  }
-
-  return action;
-};
-
-const extractRelayName = (relativeYPath: string) => {
-  return relativeYPath
-    .replace('${self:resources.Resources.relayers.', '')
-    .slice(0, -1);
-};
-
 const getYmlRelativePath = (
   resourceType: 'Sentinels' | 'Relayers' | 'functions' | 'notifications',
   name: string
@@ -300,35 +259,4 @@ const getYmlRelativePath = (
       ? resourceType
       : 'resources.Resources.' + resourceType);
   return prefix + '.' + name + '}';
-};
-
-const generateRelay = (
-  relativeYPath: string,
-  networkKey: Network,
-  config: DefenderConfigType
-) => {
-  let _relay = {};
-  const relayKey = extractRelayName(relativeYPath);
-
-  if (
-    relayKey.startsWith(`DEFAULT_READER_`) &&
-    Networks.includes(relayKey.replace('DEFAULT_READER_', '') as any)
-  ) {
-    _relay = {
-      name: 'Default relay',
-      network: networkKey,
-      'min-balance': 0,
-      'api-keys': [],
-    };
-  } else {
-    if (!config?.relayers?.[relayKey])
-      throw new Error(
-        'Relay Key:' + relayKey + ' was not found in config.relayers'
-      );
-    {
-      _relay = config.relayers[relayKey];
-    }
-  }
-  const relay: YRelayer = _relay as YRelayer;
-  return {relay, relayKey};
 };
