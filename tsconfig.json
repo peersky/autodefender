@@ -14,5 +14,15 @@
     "files": true
   },
   "files": ["src/solc.d.ts"],
-  "include": ["src/", "scripts/", "*.ts", "defender.config.ts", "solc.d.ts"]
+  "include": [
+    "src/",
+    "scripts/",
+    "*.ts",
+    "defender.config.ts",
+    "solc.d.ts",
+    "rollup.config.js",
+    "templates",
+    "src/types"
+  ],
+  "exclude": ["templates/functions/dist", "node_modules/", "compile/", "dist/"]
 }

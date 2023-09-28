@@ -1,31 +1,34 @@
-import {Contract, JsonRpcProvider, ZeroAddress, ethers} from 'ethers';
-import {AbiItem, AddressInfoProps} from '../../types';
-import erc165abi from '../../../abis/IERC165.json';
-import {getInterfaceID} from '../../utils';
+import {Contract, ethers, providers} from 'ethers';
+import {AbiItem, AddressInfo, MatcherFindings} from '../../src/types';
+import erc165abi from '../../abis/IERC165.json';
+import {getInterfaceID} from '../../src/utils';
 
-import {IERC165} from '../../types/typechain/IERC165';
+import {IERC165} from '../../src/types/typechain/IERC165';
 
 const contract165Base = new ethers.Contract(
-  ZeroAddress,
+  ethers.constants.AddressZero,
   erc165abi
 ) as unknown as IERC165;
 
 export const findContractsWithInterface =
   (abiOrInterffaceId: AbiItem | string, excludeAccounts?: string[]) =>
   async (
-    records: AddressInfoProps[],
-    provider: JsonRpcProvider
-  ): Promise<AddressInfoProps[]> => {
+    records: AddressInfo[],
+    provider: providers.JsonRpcProvider
+  ): Promise<MatcherFindings[]> => {
     process.stdout.write('findContractsWithInterface... ');
     let interfaceId;
     if (typeof abiOrInterffaceId === 'string') {
       interfaceId = abiOrInterffaceId;
     } else {
-      const contractBase = new Contract(ZeroAddress, abiOrInterffaceId);
+      const contractBase = new Contract(
+        ethers.constants.AddressZero,
+        abiOrInterffaceId
+      );
       interfaceId = getInterfaceID(contractBase.interface);
     }
 
-    const contracts = [];
+    const contracts: MatcherFindings[] = [];
     const contract165Connected = contract165Base.connect(provider);
     for (const record of records) {
       process.stdout.clearLine(0);
@@ -47,7 +50,13 @@ export const findContractsWithInterface =
       }
       if (supportsInterface && !excludeAccounts?.includes(record.address)) {
         contracts.push({
-          address: record.address,
+          account: {
+            address: record.address,
+            abi:
+              typeof abiOrInterffaceId !== 'string'
+                ? abiOrInterffaceId
+                : undefined,
+          },
         });
       }
     }
@@ -65,9 +74,9 @@ export const findContractsWithInterface =
 export const findContractsWithInterfaces =
   (abisOrIds: AbiItem[] | string[], excludeAccounts?: string[]) =>
   async (
-    records: AddressInfoProps[],
-    provider: JsonRpcProvider
-  ): Promise<AddressInfoProps[]> => {
+    records: AddressInfo[],
+    provider: providers.JsonRpcProvider
+  ): Promise<MatcherFindings[]> => {
     const results = [];
     let abiorId: AbiItem | string;
     for (abiorId of abisOrIds) {

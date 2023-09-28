@@ -27,11 +27,12 @@ tsconfig.tsbuildinfo
 # Build artifacts
 **/.openzeppelin/
 types/**
-dist/
 abi/@openzeppelin
-defender/autotasks/compile
+compile
+dist
 
 # editors
 .idea
 out/contracts.json
 out/monitors.json
+deployments

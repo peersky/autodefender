@@ -1,27 +1,33 @@
-import {JsonRpcProvider, ethers} from 'ethers';
+import {ethers, providers} from 'ethers';
 import {
   DefenderConfigType,
   DeploymentRecord,
-  AddressInfoProps,
   NotifyConfig,
   TSentinelGetter,
+  MatcherFindings,
+  RelatedAccount,
 } from '../types';
 import {
   YAutotask,
-  YBlockSentinel,
-  YFortaSentinel,
   YNotification,
+  YRelayer,
+  YSecret,
   YSentinel,
 } from '@openzeppelin/defender-serverless/lib/types';
 import {Network} from '@openzeppelin/defender-base-client';
 import {sortByNetwork} from '../utils';
+import _ from 'lodash';
+import {generateFunction} from './functions';
+import {generateRelay} from './relays';
 
 export const monitorsGenerator = async (
   deploymentRecords: DeploymentRecord[],
   config: DefenderConfigType
 ) => {
-  const monitors: Record<string, YSentinel> = {};
-  const functions: YAutotask[] = [];
+  let monitors: Record<string, YSentinel> = {};
+  let functions: Record<string, YAutotask> = {};
+  let secrets: Record<string, YSecret> = {};
+  const relayers: Record<string, YRelayer> = {};
 
   if (!config.networks) throw new Error('Networks must be set with sentinels');
   const deploymentsByNetwork = sortByNetwork(
@@ -39,71 +45,218 @@ export const monitorsGenerator = async (
       ' Contracts'
     );
 
-    const provider = new ethers.JsonRpcProvider(
+    const provider = new ethers.providers.JsonRpcProvider(
       config.networks[networkKey]?.rpc
     );
 
+    const reledAccounts: RelatedAccount[] = [];
     if (config.monitors) {
-      const _monitorPromises: {[k: string]: Promise<YSentinel>} = {};
+      const _monitorPromises: {
+        [k: string]: Promise<{
+          monitor: YSentinel;
+          autotasks: {[key: string]: YAutotask};
+          secrets: {[key: string]: YSecret};
+        }>;
+      } = {};
       for (const monitorName in config.monitors) {
-        console.log(`Building ${monitorName} monitor...`);
+        console.log(`Building ${monitorName} monitor for ${networkKey}...`);
         const template = config.monitors[monitorName];
-        _monitorPromises[`${monitorName}.${networkKey}`] = monitorBuilder(
-          template.monitor,
-          template.contractsFilter(nDeployments, provider),
-          template.notification,
-          provider,
-          networkKey
-        ).then((r) => (monitors[`${monitorName}.${networkKey}`] = r));
+        if (monitors[`${monitorName}.${networkKey}`])
+          throw new Error(
+            'Monitor' + `${monitorName}.${networkKey}` + ' Already defined'
+          );
+        _monitorPromises[`${monitorName}.${networkKey}`] = template
+          .filter(nDeployments, provider)
+          .then(async (findings) => {
+            findings.forEach((finding) => {
+              if (finding.related && finding.related.length > 0)
+                reledAccounts.push(...finding.related);
+            });
+            return monitorBuilder(
+              template.monitor,
+              findings,
+              template.notification,
+              provider,
+              networkKey
+            ).then((r) => {
+              monitors[`${monitorName}.${networkKey}`] = _.cloneDeep(r.monitor);
+              functions = {...functions, ...r.autotasks};
+              secrets = {...secrets, ...r.secrets};
+              return r;
+            });
+          });
       }
 
       await Promise.all(Object.values(_monitorPromises));
+      for (const accountMonitorName in config.extractedAccountsMonitoring) {
+        console.log(
+          `Building ${accountMonitorName} monitor for ${networkKey}...`
+        );
+        const template = config.extractedAccountsMonitoring[accountMonitorName];
+
+        if (monitors[`${accountMonitorName}.${networkKey}`])
+          throw new Error(
+            'Monitor' +
+              `${accountMonitorName}.${networkKey}` +
+              ' Already defined'
+          );
+        _monitorPromises[`${accountMonitorName}.${networkKey}`] = template
+          .filter(reledAccounts, provider)
+          .then(async (findings) => {
+            findings.forEach((finding) => {
+              if (finding.related && finding.related.length > 0)
+                reledAccounts.push(...finding.related);
+            });
+            return monitorBuilder(
+              template.monitor,
+              findings,
+              template.notification,
+              provider,
+              networkKey
+            ).then((r) => {
+              monitors[`${accountMonitorName}.${networkKey}`] = _.cloneDeep(
+                r.monitor
+              );
+              functions = {...functions, ...r.autotasks};
+              secrets = {...secrets, ...r.secrets};
+              return r;
+            });
+          });
+      }
+      await Promise.all(Object.values(_monitorPromises));
+    }
+    for (const fn in functions) {
+      if (functions[fn].relayer) {
+        const {relay, relayKey} = generateRelay(
+          functions[fn].relayer as any as string,
+          networkKey,
+          config
+        );
+        relayers[relayKey] = relay;
+      }
     }
   }
+
   const notifications: {[key: string]: YNotification} = {};
-  for (const k in monitors) {
+  const nm = _.cloneDeep(monitors);
+  Object.keys(monitors).forEach((k) => {
+    let ovr: string[] = [];
     for (const ch of monitors[k]['notify-config'].channels) {
-      const hash = ethers.hashMessage(JSON.stringify(ch));
-      if (!notifications[hash]) notifications[hash] = ch;
+      const hash = ethers.utils.hashMessage(JSON.stringify(ch));
+      notifications['_' + hash] = ch;
+      ovr.push(getYmlRelativePath('notifications', '_' + hash));
     }
-  }
+    nm[k]['notify-config'].channels = [...ovr] as any as YNotification[];
+    ovr = [];
+  });
+  monitors = nm;
   console.log(
     'Generated',
     Object.keys(monitors).length,
     'monitors:',
     Object.values(monitors).map((v) => v.name),
-    'and ',
+    ', ',
     Object.keys(notifications).length,
-    ' notification channels'
+    ' notification channels, ',
+    Object.keys(secrets).length,
+    'secrets,',
+    Object.keys(functions).length,
+    'functions and, ',
+    Object.keys(relayers).length,
+    'relayers'
   );
   return {
     monitors,
     functions,
     notifications: notifications,
+    secrets,
+    relayers,
   };
 };
 
 const monitorBuilder = async (
-  template: TSentinelGetter,
-  addresses: Promise<AddressInfoProps[]>,
+  template: TSentinelGetter<any, any>,
+  findings: MatcherFindings[],
   notifyConfig: NotifyConfig,
-  provider: JsonRpcProvider,
+  provider: providers.JsonRpcProvider,
   networkKey: Network
-): Promise<YSentinel> => {
-  const _addresses = await addresses;
-  const {newMonitor, defaultMessage} = await template(_addresses, provider);
+): Promise<{
+  monitor: YSentinel;
+  autotasks: {[key: string]: YAutotask};
+  secrets: {[key: string]: YSecret};
+}> => {
+  const {newMonitor, defaultMessage, actionsParams} = await template(
+    findings.map((f) => f.account),
+    provider,
+    networkKey
+  );
   const _monitor = {
     ...newMonitor,
     'notify-config': {...notifyConfig},
     network: networkKey,
     'confirm-level': 1,
-    addresses: _addresses.map((_a) => _a.address),
+    addresses: findings.map((f) => f.account.address),
   };
   if (_monitor['notify-config'].message)
     _monitor['notify-config'].message = defaultMessage;
-  const monitor: YSentinel =
-    _monitor.type === 'FORTA'
-      ? (_monitor as YFortaSentinel)
-      : (_monitor as YBlockSentinel);
-  return monitor;
+
+  const functions: Record<string, YAutotask> = {};
+  const secrets: {[key: string]: YSecret} = {};
+  let conditionHash;
+  let triggerHash;
+  const _condition = _monitor['autotask-condition'];
+  const _trigger = _monitor['autotask-trigger'];
+
+  if (_condition) {
+    const conditionYAutotask = generateFunction(
+      _condition,
+      actionsParams?.condition
+    );
+    conditionHash = ethers.utils.hashMessage(
+      JSON.stringify(conditionYAutotask)
+    );
+    functions[`_${conditionHash}`] = conditionYAutotask;
+    if (actionsParams?.condition?.secrets) {
+      for (const key in actionsParams.condition.secrets) {
+        secrets[conditionYAutotask.name + '_' + key] =
+          actionsParams.condition.secrets[key];
+      }
+    }
+  }
+  if (_trigger) {
+    const triggerYAutotask = generateFunction(_trigger, actionsParams?.trigger);
+    triggerHash = ethers.utils.hashMessage(JSON.stringify(triggerYAutotask));
+    functions[`_${triggerHash}`] = triggerYAutotask;
+    if (actionsParams?.trigger?.secrets) {
+      for (const key in actionsParams.trigger.secrets) {
+        secrets[triggerYAutotask.name + '_' + key] =
+          actionsParams.trigger.secrets[key];
+      }
+    }
+  }
+
+  const sentinel: YSentinel = {
+    ...(_monitor as YSentinel),
+    'notify-config': notifyConfig,
+    'autotask-condition': (_condition
+      ? '${self:functions.' + '_' + conditionHash + '}'
+      : undefined) as any as YAutotask,
+    'autotask-trigger': (_trigger
+      ? '${self:functions}' + '_' + conditionHash + '}'
+      : undefined) as any as YAutotask,
+  };
+
+  return {monitor: sentinel, autotasks: functions, secrets};
+};
+
+const getYmlRelativePath = (
+  resourceType: 'Sentinels' | 'Relayers' | 'functions' | 'notifications',
+  name: string
+) => {
+  const prefix =
+    '${self:' +
+    (resourceType === 'functions'
+      ? resourceType
+      : 'resources.Resources.' + resourceType);
+  return prefix + '.' + name + '}';
 };

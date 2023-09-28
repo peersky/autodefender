@@ -1,22 +1,22 @@
-import {Contract, JsonRpcProvider, ZeroAddress} from 'ethers';
-import {AddressInfoProps} from '../../types';
-import erc20abi from '../../../abis/IERC20Metadata.json';
+import {Contract, ethers, providers} from 'ethers';
+import {AddressInfo, MatcherFindings} from '../../src/types';
+import erc20abi from '../../abis/IERC20Metadata.json';
 
-import {IERC20Metadata} from '../../types/typechain/IERC20Metadata';
+import {IERC20Metadata} from '../../src/types/typechain/IERC20Metadata';
 
 const erc20contract = new Contract(
-  ZeroAddress,
+  ethers.constants.AddressZero,
   erc20abi
 ) as unknown as IERC20Metadata;
 export const findERC20Contracts =
   (excludeAccounts?: string[]) =>
   async (
-    records: AddressInfoProps[],
-    provider: JsonRpcProvider
-  ): Promise<AddressInfoProps[]> => {
+    records: AddressInfo[],
+    provider: providers.JsonRpcProvider
+  ): Promise<MatcherFindings[]> => {
     process.stdout.write('findERC20Contracts... ');
 
-    const contracts: AddressInfoProps[] = [];
+    const contracts: MatcherFindings[] = [];
     const contractConnected = erc20contract.connect(
       provider
     ) as unknown as IERC20Metadata;
@@ -31,12 +31,17 @@ export const findERC20Contracts =
       let supportsInterface = false;
 
       try {
-        const allowance = contractAttached.allowance(ZeroAddress, ZeroAddress);
+        const allowance = contractAttached.allowance(
+          ethers.constants.AddressZero,
+          ethers.constants.AddressZero
+        );
         const name = contractAttached.name();
         const symbol = contractAttached.symbol();
         const decimals = contractAttached.decimals();
         const totalSupply = contractAttached.totalSupply();
-        const balanceOf = contractAttached.balanceOf(ZeroAddress);
+        const balanceOf = contractAttached.balanceOf(
+          ethers.constants.AddressZero
+        );
         await Promise.all([
           allowance,
           name,
@@ -51,10 +56,9 @@ export const findERC20Contracts =
         supportsInterface = false;
       }
 
-      // console.log(supportsAC, supportsACDA);
       if (supportsInterface && !excludeAccounts?.includes(record.address)) {
         contracts.push({
-          address: record.address,
+          account: {address: record.address, abi: erc20abi},
         });
       }
     }

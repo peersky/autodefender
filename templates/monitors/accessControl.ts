@@ -1,20 +1,22 @@
-import {ZeroAddress, ethers} from 'ethers';
-import {TSentinel, TSentinelGetter} from '../../types';
+import {ethers} from 'ethers';
+import {TSentinel, TSentinelGetter} from '../../src/types';
 import fs from 'fs';
-import {eventSlicer} from '../../utils';
-import {AccessControlDefaultAdminRules} from '../../types/typechain';
-import AccessControlAbi from '../../../abis/AccessControlDefaultAdminRules.json';
+import {eventSlicer} from '../../src/utils';
+import {AccessControlDefaultAdminRules} from '../../src/types/typechain';
+import AccessControlAbi from '../../abis/AccessControlDefaultAdminRules.json';
 const accessContract = new ethers.Contract(
-  ZeroAddress,
+  ethers.constants.AddressZero,
   AccessControlAbi
 ) as unknown as AccessControlDefaultAdminRules;
 
 const defaultMessage = fs
-  .readFileSync('./src/templates/messages/info-message.md', 'utf8')
+  .readFileSync('./templates/messages/info-message.md', 'utf8')
   .toString();
 
 export const accessMonitor =
-  (name = 'Access control monitor'): TSentinelGetter =>
+  (
+    name = 'Access control monitor'
+  ): TSentinelGetter<Record<string, never>, Record<string, never>> =>
   async () => {
     const newMonitor: TSentinel = {
       'risk-category': 'ACCESS-CONTROL',
@@ -27,55 +29,43 @@ export const accessMonitor =
           {
             signature: eventSlicer<AccessControlDefaultAdminRules>(
               accessContract,
-              accessContract
-                .getEvent('RoleAdminChanged')
-                .fragment.format('full')
+              'RoleAdminChanged(bytes32,bytes32,bytes32)'
             ),
           },
           {
             signature: eventSlicer<AccessControlDefaultAdminRules>(
               accessContract,
-              accessContract.getEvent('RoleGranted').fragment.format('full')
+              'RoleGranted(bytes32,address,address)'
             ),
           },
           {
             signature: eventSlicer<AccessControlDefaultAdminRules>(
               accessContract,
-              accessContract
-                .getEvent('RoleAdminChanged')
-                .fragment.format('full')
+              'RoleRevoked(bytes32,address,address)'
             ),
           },
           {
             signature: eventSlicer<AccessControlDefaultAdminRules>(
               accessContract,
-              accessContract
-                .getEvent('DefaultAdminTransferScheduled')
-                .fragment.format('full')
+              'DefaultAdminDelayChangeCanceled()'
             ),
           },
           {
             signature: eventSlicer<AccessControlDefaultAdminRules>(
               accessContract,
-              accessContract
-                .getEvent('DefaultAdminTransferCanceled')
-                .fragment.format('full')
+              'DefaultAdminDelayChangeScheduled(uint48,uint48)'
             ),
           },
           {
             signature: eventSlicer<AccessControlDefaultAdminRules>(
               accessContract,
-              accessContract
-                .getEvent('DefaultAdminDelayChangeScheduled')
-                .fragment.format('full')
+              'DefaultAdminTransferCanceled()'
             ),
           },
           {
             signature: eventSlicer<AccessControlDefaultAdminRules>(
               accessContract,
-              accessContract
-                .getEvent('DefaultAdminDelayChangeCanceled')
-                .fragment.format('full')
+              'DefaultAdminTransferScheduled(address,uint48)'
             ),
           },
         ],

@@ -1,20 +1,22 @@
-import {ZeroAddress, ethers} from 'ethers';
-import {TSentinel, TSentinelGetter} from '../../types';
+import {ethers} from 'ethers';
+import {TSentinel, TSentinelGetter} from '../../src/types';
 import fs from 'fs';
-import {eventSlicer} from '../../utils';
-import {IGovernor} from '../../types/typechain';
-import GovernorAbi from '../../../abis/IGovernor.json';
+import {eventSlicer} from '../../src/utils';
+import {IGovernor} from '../../src/types/typechain';
+import GovernorAbi from '../../abis/IGovernor.json';
 const governorContract = new ethers.Contract(
-  ZeroAddress,
+  ethers.constants.AddressZero,
   GovernorAbi
 ) as unknown as IGovernor;
 
 const defaultMessage = fs
-  .readFileSync('./src/templates/messages/info-message.md', 'utf8')
+  .readFileSync('./templates/messages/info-message.md', 'utf8')
   .toString();
 
 export const governorMonitor =
-  (name = 'Governor control monitor'): TSentinelGetter =>
+  (
+    name = 'Governor control monitor'
+  ): TSentinelGetter<Record<string, never>, Record<string, never>> =>
   async () => {
     const newMonitor: TSentinel = {
       'risk-category': 'GOVERNANCE',
@@ -27,39 +29,31 @@ export const governorMonitor =
           {
             signature: eventSlicer<IGovernor>(
               governorContract,
-              governorContract
-                .getEvent('ProposalCanceled')
-                .fragment.format('full')
+              'ProposalCanceled(uint256)'
             ),
           },
           {
             signature: eventSlicer<IGovernor>(
               governorContract,
-              governorContract
-                .getEvent('ProposalCreated')
-                .fragment.format('full')
+              'ProposalCreated(uint256,address,address[],uint256[],string[],bytes[],uint256,uint256,string)'
             ),
           },
           {
             signature: eventSlicer<IGovernor>(
               governorContract,
-              governorContract
-                .getEvent('ProposalExecuted')
-                .fragment.format('full')
+              'ProposalExecuted(uint256)'
             ),
           },
           {
             signature: eventSlicer<IGovernor>(
               governorContract,
-              governorContract.getEvent('VoteCast').fragment.format('full')
+              'VoteCast(address,uint256,uint8,uint256,string)'
             ),
           },
           {
             signature: eventSlicer<IGovernor>(
               governorContract,
-              governorContract
-                .getEvent('VoteCastWithParams')
-                .fragment.format('full')
+              'VoteCastWithParams(address,uint256,uint8,uint256,string,bytes)'
             ),
           },
         ],

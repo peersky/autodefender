@@ -1,21 +1,23 @@
-import {ZeroAddress, ethers} from 'ethers';
-import {TSentinel, TSentinelGetter} from '../../types';
-import ProxiesAbi from '../../../abis/Proxies.json';
+import {ethers} from 'ethers';
+import {TSentinel, TSentinelGetter} from '../../src/types';
+import ProxiesAbi from '../../abis/Proxies.json';
 import fs from 'fs';
-import {eventSlicer} from '../../utils';
-import {Proxies} from '../../types/typechain';
+import {eventSlicer} from '../../src/utils';
+import {Proxies} from '../../src/types/typechain';
 
 const proxyContract = new ethers.Contract(
-  ZeroAddress,
+  ethers.constants.AddressZero,
   ProxiesAbi
 ) as unknown as Proxies;
 
 const defaultMessage = fs
-  .readFileSync('./src/templates/messages/info-message.md', 'utf8')
+  .readFileSync('./templates/messages/info-message.md', 'utf8')
   .toString();
 
 export const upgradesMonitor =
-  (name = 'Upgrades monitor'): TSentinelGetter =>
+  (
+    name = 'Upgrades monitor'
+  ): TSentinelGetter<Record<string, never>, Record<string, never>> =>
   async () => {
     const newMonitor: TSentinel = {
       'risk-category': 'TECHNICAL',
@@ -28,26 +30,23 @@ export const upgradesMonitor =
           {
             signature: eventSlicer<Proxies>(
               proxyContract,
-              proxyContract.getEvent('AdminChanged').fragment.format('full')
+              'AdminChanged(address,address)'
             ),
           },
           {
             signature: eventSlicer<Proxies>(
               proxyContract,
-              proxyContract.getEvent('BeaconUpgraded').fragment.format('full')
+              'BeaconUpgraded(address)'
             ),
           },
           {
             signature: eventSlicer<Proxies>(
               proxyContract,
-              proxyContract.getEvent('DiamondCut').fragment.format('full')
+              'DiamondCut((address,uint8,bytes4[])[],address,bytes)'
             ),
           },
           {
-            signature: eventSlicer<Proxies>(
-              proxyContract,
-              proxyContract.getEvent('Upgraded').fragment.format('full')
-            ),
+            signature: eventSlicer<Proxies>(proxyContract, 'Upgraded(address)'),
           },
         ],
         function: [],

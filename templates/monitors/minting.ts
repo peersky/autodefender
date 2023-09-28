@@ -1,28 +1,28 @@
-import {ZeroAddress, ethers} from 'ethers';
-import {TSentinel, TSentinelGetter} from '../../types';
-import ERC1155Abi from '../../../abis/IERC1155.json';
-import ERC721Abi from '../../../abis/IERC721.json';
-import ERC20Abi from '../../../abis/IERC20.json';
-import {IERC1155, IERC20Metadata, IERC721} from '../../types/typechain';
+import {ethers} from 'ethers';
+import {TSentinel, TSentinelGetter} from '../../src/types';
+import ERC1155Abi from '../../abis/IERC1155.json';
+import ERC721Abi from '../../abis/IERC721.json';
+import ERC20Abi from '../../abis/IERC20.json';
+import {IERC1155, IERC20Metadata, IERC721} from '../../src/types/typechain';
 
 import fs from 'fs';
-import {eventSlicer} from '../../utils';
+import {eventSlicer} from '../../src/utils';
 
 const erc20contract = new ethers.Contract(
-  ZeroAddress,
+  ethers.constants.AddressZero,
   ERC20Abi
 ) as unknown as IERC20Metadata;
 const erc1155contract = new ethers.Contract(
-  ZeroAddress,
+  ethers.constants.AddressZero,
   ERC1155Abi
 ) as unknown as IERC1155;
 const erc721contract = new ethers.Contract(
-  ZeroAddress,
+  ethers.constants.AddressZero,
   ERC721Abi
 ) as unknown as IERC721;
 
 const defaultMessage = fs
-  .readFileSync('./src/templates/messages/info-message.md', 'utf8')
+  .readFileSync('./templates/messages/info-message.md', 'utf8')
   .toString();
 type SupportedInterfaces = 'ERC20' | 'ERC721' | 'ERC1155';
 export const mintMonitor =
@@ -31,7 +31,7 @@ export const mintMonitor =
     threshold = '0',
     name?: string,
     to?: string[]
-  ): TSentinelGetter =>
+  ): TSentinelGetter<Record<string, never>, Record<string, never>> =>
   async () => {
     let abi;
     switch (type) {
@@ -67,9 +67,9 @@ const conditions = (
         {
           signature: eventSlicer<IERC20Metadata>(
             erc20contract,
-            erc20contract.getEvent('Transfer').fragment.format('full')
+            'Transfer(address,address,uint256)'
           ),
-          expression: `from==${ZeroAddress} AND value > ${threshold}`,
+          expression: `from==${ethers.constants.AddressZero} AND value > ${threshold}`,
         },
       ],
       function: [{signature: ''}],
@@ -79,9 +79,9 @@ const conditions = (
         {
           signature: eventSlicer<IERC1155>(
             erc1155contract,
-            erc1155contract.getEvent('TransferSingle').fragment.format('full')
+            'TransferSingle(address,address,address,uint256,uint256)'
           ),
-          expression: `from==${ZeroAddress} AND value > ${threshold}`,
+          expression: `from==${ethers.constants.AddressZero} AND value > ${threshold}`,
         },
       ],
       function: [{signature: ''}],
@@ -91,9 +91,9 @@ const conditions = (
         {
           signature: eventSlicer<IERC721>(
             erc721contract,
-            erc721contract.getEvent('Transfer').fragment.format('full')
+            'Transfer(address,address,uint256)'
           ),
-          expression: `from==${ZeroAddress} AND tokenId > ${threshold}`,
+          expression: `from==${ethers.constants.AddressZero} AND tokenId > ${threshold}`,
         },
       ],
       function: [{signature: ''}],

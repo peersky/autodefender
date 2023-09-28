@@ -4,12 +4,13 @@ This repository contains templates and tooling to setup web3 monitoring on [Open
 
 Structure of this codebase is made with plug-in-ability in mind, so adding new templates is very easy as well!
 
-Here is what you will be able to configure:
+## Why use it?
 
-- What monitoring to setup
-- Scope for contracts to cover with monitoring
-- How to determine which contracts should be monitored in each particular template
-- Where to send notifications
+- Generate monitoring configuration with current on-chain data as source of truth
+- Manage only one configuration file and reuse code with use of templates
+- Combine matchiing logic templates with monitoring templates to get what you need.
+- Run this in CI/CD pipeline to automatically keep up to date with any new deployments
+- Typescript support for configuring Defender
 
 ### Setting up:
 
@@ -34,7 +35,7 @@ Open or create new `defender.config.ts` in root of this repository.
       notification: { // Notifyconfig
         channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))], //availible getters in /src/templates/notifications
       },
-      contractsFilter: findERC20Contracts(), //see availible matchers in src/templates/matchers
+      filter: findERC20Contracts(), //see availible matchers in src/templates/matchers
       monitor: mintMonitor('ERC20', '100'), //see availible monitors in src/templates/monitors
       //ToDo: Add trigger templates here
     },
@@ -72,15 +73,124 @@ export MAINNET_RPC_URL="url"
 
 ```
 
+NB: Im not a fun of using dotenv. Use `export` keyword in env files/variables and `source <your_env_file>` or add sorucing to yarn commands, or add dotenv if you like using it.
+
 ```
 yarn contracts
 yarn monitors
 ```
 
-## Adding new templates
+## Kinds of Templates
 
 Create new file in `/templates/`. Add it to index.
 
 Follow typing definitions of `DefenderConfigType`
 
-Make PR ;)
+### Matchers
+
+Matchers are the templates intended to take some given address space, provider already connected to network and any extra arguments, and it must return array of `MatcherFindings`. Each finding has `address` of finding and `relatedAccounts[]` array (i.e. roles in AccessControl contracts)
+
+### Monitors
+
+Findings from Matcher function are passed to Monitor Getter template along with other arguments and generate a monitoring template that consists of Monitor itself, and optional dependencies.
+Dependencies might be: (trigger/condition) Functions, connected to them Relayers and Secrets.
+
+### Messages
+
+md files that must be parsed in to strings and be returned from Monitor template
+
+### Notifications
+
+Templates to generate `YNotification`
+
+### Functions
+
+Functions are javascript templates that are ready to be deployed in Defender scripts. They are intended to run in the Defender Node enviroment and therefore best practice is to rollup or use webpack to genetrate them.
+
+Convinient development way is to create your template in `src/templates` directory and then add it to the build process in `rollup.config.js`. Then by simply running `yarn build:functions` your function will be added to `templates/functions`.
+
+## Creating a new monitor
+
+### Monitor getter
+
+Monitor getters are described by
+
+```ts
+TSentinelGetter<Record<string, string | never>, Record<string, string | never>>;
+```
+
+where inputs are
+
+```ts
+contractAddresses: string[]// - array of addresses to monitor for
+provider: JsonRpcProvider // For convinience of reading chain during generation you have provider availible (running on future monitors network)
+networkName: Network //Network name in Defender naming convention
+```
+
+and return is Promise of `TSentinelOutput` which consists of
+
+```ts
+export interface TSentinelOutput<T, K> {
+  newMonitor: TSentinel; //Template for the monitor
+  defaultMessage: string; //Default message to send as notificaiton
+  actionsParams?: ActionsParams<T, K>; //Extra parameters such as secrets or relay definitions
+}
+```
+
+### Adding functions
+
+Simply add in your templates `newMonitor` properties: `autotask-condition` or `autotask-trigger` with path from repo root to compiled template.
+
+#### Connecting functions to relays
+
+If your functions require relay to operate you can use either default relay for read operations generated automatically, or specify key for custom relay. In second case you must specify relay configuration in your config file with same key.
+
+To add relay return object must contain `actionsParams` object. I.e. connecting to default relay in same network as Monitor is run for conditional autotask may look like this:
+
+```ts
+return {
+  //Return object from monitor template
+  newMonitor, //Monitor object itself
+  defaultMessage, //Notification message (string)
+  actionsParams: {
+    condition: {
+      relayNetwork: sentinelNetwork, //Specifying relayNetwork will automatically add default_reader relay on that network
+      customRelay: 'myRelayer', //Adding this will use your custom defined relayer from config file instead of default
+    },
+    trigger: trigger //if trigger is defined it will require relay in trigger autotask.
+      ? {relayNetwork: trigger.params.relayNetwork, secrets: trigger.params}
+      : undefined,
+  },
+};
+```
+
+### Specifying secrets
+
+In the example above, monitoring template actually requires `LOW_ETH_THRESHOLD` secret to exist in Defender stack. In order to add id, pass required key-values as `actionsParams.condition` or `actionsParams.trigger`. Having trigger/conditon differentiator will allow that secret to be used in scoped secrets workflow
+
+```ts
+return {
+  newMonitor,
+  defaultMessage,
+  actionsParams: {
+    condition: {
+      relayNetwork: sentinelNetwork,
+      secrets: {LOW_ETH_THRESHOLD: threshold}, //This is custom parameter that autotask needs to consume from secrets
+      customRelay: 'myRelayer',
+    },
+    trigger: trigger
+      ? {relayNetwork: trigger.params.relayNetwork, secrets: trigger.params}
+      : undefined,
+  },
+};
+```
+
+#### Using scoped secrets
+
+If you need to pass some argument from the configuration to function, this is possible to do with scoped secrets defined in `src/templates/utils`
+
+Scoped secrets use secret name and function visible name to combine it to a secret key that can be red from enviroment.
+
+## Function getter
+
+Are not yet supported but it's easy to implement. Add your PR ;)

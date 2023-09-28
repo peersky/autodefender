@@ -6,19 +6,23 @@ import erc721abi from './abis/IERC721.json';
 import AccessControlDefaultAdminAbi from './abis/IAccessControlDefaultAdminRules.json';
 import AccessContolAbi from './abis/IAccessControl.json';
 import {DefenderConfigType} from './src/types/index';
-import {findAllOwnable} from './src/templates/matchers/ownable';
-import {generateOwnableMonitor} from './src/templates/monitors/ownership';
-import {mintMonitor} from './src/templates/monitors/minting';
-import {attackDetectorMonitor} from './src/templates/monitors/attackDetector';
-import {upgradesMonitor} from './src/templates/monitors/upgrades';
+import {findAllOwnable} from './templates/matchers/ownable';
+import {generateOwnableMonitor} from './templates/monitors/ownership';
+import {mintMonitor} from './templates/monitors/minting';
+import {attackDetectorMonitor} from './templates/monitors/attackDetector';
+import {upgradesMonitor} from './templates/monitors/upgrades';
+import {accountEthMonitor} from './templates/monitors/accountEth';
 import {
   findContractsWithInterface,
   findContractsWithInterfaces,
-} from './src/templates/matchers/interface';
-import {accessMonitor} from './src/templates/monitors/accessControl';
-import {findERC20Contracts} from './src/templates/matchers/erc20';
+} from './templates/matchers/interface';
+import {accessMonitor} from './templates/monitors/accessControl';
+import {findERC20Contracts} from './templates/matchers/erc20';
+import {all} from './templates/matchers/all';
+
 const config: DefenderConfigType = {
   projectName: 'WORKSHOP1',
+  ssot: true,
   // path: 'https://api.github.com/repos/thesandboxgame/sandbox-smart-contracts/contents/packages/core/deployments',
   path: './deployments',
   networks: {
@@ -27,7 +31,7 @@ const config: DefenderConfigType = {
   },
   monitors: {
     Ownership: {
-      contractsFilter: findAllOwnable(),
+      filter: findAllOwnable(),
       monitor: generateOwnableMonitor(),
       notification: {
         channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
@@ -37,21 +41,21 @@ const config: DefenderConfigType = {
       notification: {
         channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
       },
-      contractsFilter: findContractsWithInterface(erc1155abi),
+      filter: findContractsWithInterface(erc1155abi),
       monitor: mintMonitor('ERC1155', '10'),
     },
     'Large-Mint-ERC20': {
       notification: {
         channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
       },
-      contractsFilter: findERC20Contracts(),
+      filter: findERC20Contracts(),
       monitor: mintMonitor('ERC20', '100'),
     },
     'Large-Mint-ERC721': {
       notification: {
         channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
       },
-      contractsFilter: findContractsWithInterface(erc721abi),
+      filter: findContractsWithInterface(erc721abi),
       monitor: mintMonitor('ERC721', '100'),
     },
     'attack-detector': {
@@ -59,21 +63,21 @@ const config: DefenderConfigType = {
         channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
       },
       monitor: attackDetectorMonitor(),
-      contractsFilter: (c) => Promise.resolve(c),
+      filter: all(),
     },
     Proxies: {
       notification: {
         channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
       },
       monitor: upgradesMonitor(),
-      contractsFilter: (c) => Promise.resolve(c),
+      filter: all(),
     },
     AccessControl: {
       notification: {
         channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
       },
       monitor: accessMonitor(),
-      contractsFilter: findContractsWithInterfaces([
+      filter: findContractsWithInterfaces([
         AccessContolAbi,
         AccessControlDefaultAdminAbi,
       ]),
@@ -81,9 +85,18 @@ const config: DefenderConfigType = {
   },
 
   outDir: './out',
-  accounts: {
-    logActions: true,
-    lowOnGasThreshold: '1',
+  extractedAccountsMonitoring: {
+    EthBalance: {
+      monitor: accountEthMonitor('10'),
+      filter: all(),
+      notification: {
+        channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
+      },
+    },
+    // LogActions: {
+    //   monitor: accountActivityMonitor('10'),
+    //   filterAccounts: (c) => Promise.resolve(c),
+    // },
   },
   excludeDeployments: [
     'QUICKSWAP_SAND_MATIC',
@@ -95,6 +108,9 @@ const config: DefenderConfigType = {
     'PolygonLand_V1',
     'FAKE*',
     'DAIMedianize',
+    'DAI',
+    'WrappedEther',
+    'Old_*',
   ],
   excludeAccounts: ['0x000000000000AAeB6D7670E522A718067333cd4E'],
 };
