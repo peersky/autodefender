@@ -40,11 +40,15 @@ Open or create new `defender.config.ts` in root of this repository.
       //ToDo: Add trigger templates here
     },
   },
-  outDir: './out', //Directory where serverless resources will be generated.
-  accounts: {  //This is WIP. Will be adding ability to extract and monitor for all priv. accounts soon
-    logActions: true, //Log any transactions
-    lowOnGasThreshold: '1', //Notify if account gas threshold is below set value
-  },
+  outDir: './out', //Directory where serverless resources will be generated in form of json files. You don't need to commit these, but if you want to work with typescript-serverless bypassing this config file - you can use those output files. 
+  extractedAccountsMonitoring: { //These are same as monitors, but the addres space supplied to them is a union of all relatedAccounts that all matchers of monitors have found. Use this to setup monitoring over owner accounts, admins etc.
+    EthBalance: {
+      monitor: accountEthMonitor('10'),
+      filter: all(), //Use additional filtering to narrow down address space for priveledged accounts in particular template
+      notification: {
+        channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
+      },
+    },
   excludeDeployments: [ //Exclude glob pattern files from path
     'QUICKSWAP_SAND_MATIC',
     'FXCHILD*',
