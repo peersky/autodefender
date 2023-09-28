@@ -77,10 +77,82 @@ yarn contracts
 yarn monitors
 ```
 
-## Adding new templates
+## Creating new templates
 
 Create new file in `/templates/`. Add it to index.
 
 Follow typing definitions of `DefenderConfigType`
 
-Make PR ;)
+### Matchers
+
+Matchers are the templates intended to take some given address space, provider already connected to network and any extra arguments, and it must return array of `MatcherFindings`. Each finding has `address` of finding and `relatedAccounts[]` array (i.e. roles in AccessControl contracts)
+
+### Monitors
+
+These findings from Matcher function, and generate a monitoring template that consists of Monitor itself and dependencies, if required, such as (trigger/condition) Functions or Relayers that must be connected in order for monitor to work
+
+#### Triggers and Conditions
+
+##### Defining function template
+
+Functions are javascript templates that are ready to be deployed in Defender scripts. They are intended to run in the Defender Node enviroment and therefore best practice is to rollup or use webpack to genetrate them.
+
+Convinient development way is to create your template in `src/templates` directory and then add it to the build process in `rollup.config.js`. Then by simply running `yarn build:functions` your function will be added to `templates/functions`.
+
+##### Using scoped secrets
+
+If you need to pass some argument from the configuration down to autotask, this is possible to do with scoped secrets defined in `src/templates/utils`
+
+Scoped secrets use secret name and function visible name to combine it to a secret key that can be red from enviroment.
+
+##### Adding to monitor
+
+Simply add in your templates `newMonitor` properties: `autotask-condition` or `autotask-trigger` with path from repo root to compiled template.
+
+##### Adding relays
+
+If your functions require relay to operate you can use either default relay for read operations generated automatically, or specify key for custom relay. In second case you must specify relay configuration in your config file with same key.
+
+To add relay return object must contain `actionsParams` object. I.e. connecting to default relay in same network as Monitor is run for conditional autotask may look like this:
+
+```ts
+return {
+  //Return object from monitor template
+  newMonitor, //Monitor object itself
+  defaultMessage, //Notification message (string)
+  actionsParams: {
+    condition: {
+      relayNetwork: sentinelNetwork, //Specifying relayNetwork will automatically add default_reader relay on that network
+      customRelay: 'myRelayer', //Adding this will use your custom defined relayer from config file instead of default
+    },
+    trigger: trigger //if trigger is defined it will require relay in trigger autotask.
+      ? {relayNetwork: trigger.params.relayNetwork, secrets: trigger.params}
+      : undefined,
+  },
+};
+```
+
+##### Specifying secrets
+
+In the example above, monitoring template actually requires `LOW_ETH_THRESHOLD` secret to exist in Defender stack. In order to add id, pass required key-values as `actionsParams.condition` or `actionsParams.trigger`. Having trigger/conditon differentiator will allow that secret to be used in scoped secrets workflow
+
+```ts
+return {
+  newMonitor,
+  defaultMessage,
+  actionsParams: {
+    condition: {
+      relayNetwork: sentinelNetwork,
+      secrets: {LOW_ETH_THRESHOLD: threshold}, //This is custom parameter that autotask needs to consume from secrets
+      customRelay: 'myRelayer',
+    },
+    trigger: trigger
+      ? {relayNetwork: trigger.params.relayNetwork, secrets: trigger.params}
+      : undefined,
+  },
+};
+```
+
+#### Standalone functions
+
+Are not yet supported but it's easy to implement. Add your PR ;)
