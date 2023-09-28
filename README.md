@@ -4,12 +4,13 @@ This repository contains templates and tooling to setup web3 monitoring on [Open
 
 Structure of this codebase is made with plug-in-ability in mind, so adding new templates is very easy as well!
 
-Here is what you will be able to configure:
+## Why use it?
 
-- What monitoring to setup
-- Scope for contracts to cover with monitoring
-- How to determine which contracts should be monitored in each particular template
-- Where to send notifications
+- Generate monitoring configuration with current on-chain data as source of truth
+- Manage only one configuration file and reuse code with use of templates
+- Combine matchiing logic templates with monitoring templates to get what you need.
+- Run this in CI/CD pipeline to automatically keep up to date with any new deployments
+- Typescript support for configuring Defender
 
 ### Setting up:
 
@@ -72,7 +73,7 @@ export MAINNET_RPC_URL="url"
 
 ```
 
-NB: Im not a fun of using dotenv. Use `export` keyword in env files/variables and `source <your_env_file>` or add sorucing to yarn commands, or add dotenv if you like using it. 
+NB: Im not a fun of using dotenv. Use `export` keyword in env files/variables and `source <your_env_file>` or add sorucing to yarn commands, or add dotenv if you like using it.
 
 ```
 yarn contracts
