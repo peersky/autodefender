@@ -72,6 +72,8 @@ export MAINNET_RPC_URL="url"
 
 ```
 
+NB: Im not a fun of using dotenv. Use `export` keyword in env files/variables and `source <your_env_file>` or add sorucing to yarn commands, or add dotenv if you like using it. 
+
 ```
 yarn contracts
 yarn monitors
@@ -89,11 +91,12 @@ Matchers are the templates intended to take some given address space, provider a
 
 ### Monitors
 
-These findings from Matcher function, and generate a monitoring template that consists of Monitor itself and dependencies, if required, such as (trigger/condition) Functions or Relayers that must be connected in order for monitor to work
+Findings from Matcher function are passed to Monitor Getter template along with other arguments and generate a monitoring template that consists of Monitor itself, and optional dependencies.
+Dependencies might be: (trigger/condition) Functions, connected to them Relayers and Secrets.
 
 ### Messages
 
-These are md files that must be parsed in to strings and be returned from Monitor template
+md files that must be parsed in to strings and be returned from Monitor template
 
 ### Notifications
 
@@ -105,7 +108,7 @@ Functions are javascript templates that are ready to be deployed in Defender scr
 
 Convinient development way is to create your template in `src/templates` directory and then add it to the build process in `rollup.config.js`. Then by simply running `yarn build:functions` your function will be added to `templates/functions`.
 
-## Creatoing new monitor
+## Creating a new monitor
 
 ### Monitor getter
 
