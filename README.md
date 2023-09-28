@@ -77,7 +77,7 @@ yarn contracts
 yarn monitors
 ```
 
-## Creating new templates
+## Kinds of Templates
 
 Create new file in `/templates/`. Add it to index.
 
@@ -91,25 +91,53 @@ Matchers are the templates intended to take some given address space, provider a
 
 These findings from Matcher function, and generate a monitoring template that consists of Monitor itself and dependencies, if required, such as (trigger/condition) Functions or Relayers that must be connected in order for monitor to work
 
-#### Triggers and Conditions
+### Messages
 
-##### Defining function template
+These are md files that must be parsed in to strings and be returned from Monitor template
+
+### Notifications
+
+Templates to generate `YNotification`
+
+### Functions
 
 Functions are javascript templates that are ready to be deployed in Defender scripts. They are intended to run in the Defender Node enviroment and therefore best practice is to rollup or use webpack to genetrate them.
 
 Convinient development way is to create your template in `src/templates` directory and then add it to the build process in `rollup.config.js`. Then by simply running `yarn build:functions` your function will be added to `templates/functions`.
 
-##### Using scoped secrets
+## Creatoing new monitor
 
-If you need to pass some argument from the configuration down to autotask, this is possible to do with scoped secrets defined in `src/templates/utils`
+### Monitor getter
 
-Scoped secrets use secret name and function visible name to combine it to a secret key that can be red from enviroment.
+Monitor getters are described by
 
-##### Adding to monitor
+```ts
+TSentinelGetter<Record<string, string | never>, Record<string, string | never>>;
+```
+
+where inputs are
+
+```ts
+contractAddresses: string[]// - array of addresses to monitor for
+provider: JsonRpcProvider // For convinience of reading chain during generation you have provider availible (running on future monitors network)
+networkName: Network //Network name in Defender naming convention
+```
+
+and return is Promise of `TSentinelOutput` which consists of
+
+```ts
+export interface TSentinelOutput<T, K> {
+  newMonitor: TSentinel; //Template for the monitor
+  defaultMessage: string; //Default message to send as notificaiton
+  actionsParams?: ActionsParams<T, K>; //Extra parameters such as secrets or relay definitions
+}
+```
+
+### Adding functions
 
 Simply add in your templates `newMonitor` properties: `autotask-condition` or `autotask-trigger` with path from repo root to compiled template.
 
-##### Adding relays
+#### Connecting functions to relays
 
 If your functions require relay to operate you can use either default relay for read operations generated automatically, or specify key for custom relay. In second case you must specify relay configuration in your config file with same key.
 
@@ -132,7 +160,7 @@ return {
 };
 ```
 
-##### Specifying secrets
+### Specifying secrets
 
 In the example above, monitoring template actually requires `LOW_ETH_THRESHOLD` secret to exist in Defender stack. In order to add id, pass required key-values as `actionsParams.condition` or `actionsParams.trigger`. Having trigger/conditon differentiator will allow that secret to be used in scoped secrets workflow
 
@@ -153,6 +181,12 @@ return {
 };
 ```
 
-#### Standalone functions
+#### Using scoped secrets
+
+If you need to pass some argument from the configuration to function, this is possible to do with scoped secrets defined in `src/templates/utils`
+
+Scoped secrets use secret name and function visible name to combine it to a secret key that can be red from enviroment.
+
+## Function getter
 
 Are not yet supported but it's easy to implement. Add your PR ;)
