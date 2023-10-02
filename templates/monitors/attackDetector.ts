@@ -1,11 +1,6 @@
 import {TFortaSentinel, TSentinelGetter} from '../../src/types';
 import OwnableAbi from '../../abis/Ownable.json';
-
-import fs from 'fs';
-
-const defaultMessage = fs
-  .readFileSync('./templates/messages/forta-message.md', 'utf8')
-  .toString();
+import {fortaMessage} from '../messages';
 
 export const attackDetectorMonitor =
   (
@@ -34,5 +29,5 @@ export const attackDetectorMonitor =
       ],
     };
 
-    return {newMonitor, defaultMessage};
+    return {newMonitor, defaultMessage: fortaMessage};
   };

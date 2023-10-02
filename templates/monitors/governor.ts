@@ -1,17 +1,13 @@
 import {ethers} from 'ethers';
 import {TSentinel, TSentinelGetter} from '../../src/types';
-import fs from 'fs';
 import {eventSlicer} from '../../src/utils';
 import {IGovernor} from '../../src/types/typechain';
 import GovernorAbi from '../../abis/IGovernor.json';
+import {defaultMessage} from '../messages';
 const governorContract = new ethers.Contract(
   ethers.constants.AddressZero,
   GovernorAbi
 ) as unknown as IGovernor;
-
-const defaultMessage = fs
-  .readFileSync('./templates/messages/info-message.md', 'utf8')
-  .toString();
 
 export const governorMonitor =
   (

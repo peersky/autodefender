@@ -2,18 +2,13 @@ import {ethers} from 'ethers';
 import {TSentinel, TSentinelGetter} from '../../src/types';
 import OwnableAbi from '../../abis/Ownable.json';
 import {Ownable} from '../../src/types/typechain/Ownable';
-
-import fs from 'fs';
+import {defaultMessage} from '../messages';
 import {eventSlicer} from '../../src/utils';
 
 const contractOwnableBase = new ethers.Contract(
   ethers.constants.AddressZero,
   OwnableAbi
 ) as unknown as Ownable;
-
-const defaultMessage = fs
-  .readFileSync('./templates/messages/info-message.md', 'utf8')
-  .toString();
 
 export const generateOwnableMonitor =
   (

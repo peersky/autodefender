@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env ts-node
 const yargs = require('yargs/yargs');
 const {hideBin} = require('yargs/helpers');
 const fs = require('fs');
@@ -8,6 +8,7 @@ const {monitorsGenerator} = require('./generators/monitors');
 
 const {spawn} = require('child_process');
 const {matches, parseAbi} = require('./utils');
+const path = require('path');
 
 const getDirectories = async (source) =>
   fs
@@ -83,7 +84,7 @@ const getRecords = async (config) => {
  */
 yargs(hideBin(process.argv))
   .command(
-    'fromHHDeployContracts',
+    'contracts',
     'Creates from hardhat deployment artifacts',
     (yargs) => {
       return yargs
@@ -94,7 +95,7 @@ yargs(hideBin(process.argv))
         .positional('config', {describe: 'Path to configuration file'});
     },
     async (argv) => {
-      const config = require(argv.config);
+      const config = require(path.join(process.cwd(), argv.config));
       let deploymentRecords = await getRecords(config);
 
       try {
@@ -102,26 +103,39 @@ yargs(hideBin(process.argv))
       } catch (e) {
         //
       }
+      console.log(
+        'asadadadad',
+        path.join(process.cwd(), config.outDir, 'contracts.json')
+      );
       fs.writeFileSync(
-        `${config.outDir}/contracts.json`,
+        path.join(process.cwd(), config.outDir, 'contracts.json'),
         contractsFormatter(deploymentRecords)
       );
 
       const child = spawn(
         'sls',
-        ['deploy', '--stage', 'dev', '--config', 'contracts.ts']
+        ['deploy', '--stage', 'dev', '--config', 'contracts.ts'],
+        {
+          cwd: __dirname,
+          env: {
+            ...process.env,
+            AUTODEFENDER_CONFIG_PATH: argv.config,
+            AUTODEFENDER_CLI_CWD: process.cwd(),
+          },
+        }
         // {stdio: [stdin, 'pipe', 'pipe'], encoding: 'utf8', shell: true}
       );
-      child.stdout.pipe(process.stdout);
-      child.stderr.pipe(process.stderr);
-      // child.stdout.on('data', (data) => {
-      //   // if (!data.toString().length < 500)
-      //   process.stdout.write(data);
-      // });
+      // child.stdout.pipe(process.stdout);
+      // child.stderr.pipe(process.stderr);
+      process.stdin.pipe(child.stdin);
+      child.stdout.on('data', (data) => {
+        // if (!data.toString().length < 500)
+        process.stdout.write(data);
+      });
     }
   )
   .command(
-    'fromHHDeployMonitors',
+    'monitors',
     'Creates from hardhat deployment artifacts',
     (yargs) => {
       return yargs
@@ -132,7 +146,7 @@ yargs(hideBin(process.argv))
         .positional('config', {describe: 'Path to configuration file'});
     },
     async (argv) => {
-      const config = require(argv.config);
+      const config = require(path.join(process.cwd(), argv.config));
       let deploymentRecords = await getRecords(config);
 
       try {
@@ -143,23 +157,31 @@ yargs(hideBin(process.argv))
       if (deploymentRecords.length > 0) {
         const monitors = await monitorsGenerator(deploymentRecords, config);
         fs.writeFileSync(
-          `${config.outDir}/monitors.json`,
+          path.join(process.cwd(), config.outDir, 'monitors.json'),
           JSON.stringify(monitors, null, 4)
         );
-
+        console.log('__dirname', __dirname);
         const child = spawn(
           'sls',
           ['deploy', '--stage', 'dev', '--config', 'monitors.ts'],
           // {stdio: 'overlapped'}
-          {serialization: 'advanced'}
+          {
+            serialization: 'advanced',
+            cwd: __dirname,
+            env: {
+              ...process.env,
+              AUTODEFENDER_CONFIG_PATH: argv.config,
+              AUTODEFENDER_CLI_CWD: process.cwd(),
+            },
+          }
         );
         // child.sti;
         // child.stdout.pipe(process.stdout);
         // child.stderr.pipe(process.stderr);
-        // process.stdin.pipe(child.stdin);
+        process.stdin.pipe(child.stdin);
         // child.stdio;
         child.stdout.on('data', (data) => {
-          if (data.toString().length < 256) process.stdout.write(data);
+          if (data.toString().length < 512) process.stdout.write(data);
         });
       }
     }

@@ -4,8 +4,8 @@ import ERC1155Abi from '../../abis/IERC1155.json';
 import ERC721Abi from '../../abis/IERC721.json';
 import ERC20Abi from '../../abis/IERC20.json';
 import {IERC1155, IERC20Metadata, IERC721} from '../../src/types/typechain';
+import {defaultMessage} from '../messages';
 
-import fs from 'fs';
 import {eventSlicer} from '../../src/utils';
 
 const erc20contract = new ethers.Contract(
@@ -21,9 +21,6 @@ const erc721contract = new ethers.Contract(
   ERC721Abi
 ) as unknown as IERC721;
 
-const defaultMessage = fs
-  .readFileSync('./templates/messages/info-message.md', 'utf8')
-  .toString();
 type SupportedInterfaces = 'ERC20' | 'ERC721' | 'ERC1155';
 export const mintMonitor =
   (

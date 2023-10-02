@@ -1,12 +1,33 @@
-import {getProcessEnv} from './src/utils';
-import {DefenderServerless} from './src/defenderPluginTypes';
-import df from './defender.config';
-
+import {getProcessEnv} from './utils';
+import {DefenderServerless} from './types/defenderPluginTypes';
+import path from 'path';
+import {DefenderConfigType} from './types';
+path;
 export async function config(print: boolean): Promise<DefenderServerless> {
+  const df: DefenderConfigType = await import(
+    path.resolve(
+      getProcessEnv(print, 'AUTODEFENDER_CLI_CWD'),
+      getProcessEnv(print, 'AUTODEFENDER_CONFIG_PATH')
+    )
+  );
   if (!df.projectName)
     throw new Error('Project name not set, fix defender.config.ts');
+
+  console.log(
+    path.join(
+      getProcessEnv(print, 'AUTODEFENDER_CLI_CWD'),
+      df.outDir,
+      'contracts.json'
+    )
+  );
   const contractsF = (
-    await import(`${df.outDir}/contracts.json`)
+    await import(
+      path.join(
+        getProcessEnv(print, 'AUTODEFENDER_CLI_CWD'),
+        df.outDir,
+        'contracts.json'
+      )
+    )
   ).default.reduce(
     (obj: any, item: any) =>
       Object.assign(obj, {

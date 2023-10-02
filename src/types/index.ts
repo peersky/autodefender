@@ -41,7 +41,7 @@ export interface DefenderConfigType {
   projectName: string;
   networks?: DefenderConfigNetworksType;
   monitors?: {[key: string]: DefenderMonitorTemplate};
-  extractedAccountsMonitoring: {
+  extractedAccountsMonitoring?: {
     [key: string]: Omit<DefenderMonitorTemplate, 'priviledgedAccountFilter'>;
   };
   relayers?: {[key: string]: YRelayer};

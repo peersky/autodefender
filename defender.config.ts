@@ -22,7 +22,7 @@ import {all} from './templates/matchers/all';
 
 const config: DefenderConfigType = {
   projectName: 'WORKSHOP1',
-  ssot: true,
+  ssot: false,
   // path: 'https://api.github.com/repos/thesandboxgame/sandbox-smart-contracts/contents/packages/core/deployments',
   path: './deployments',
   networks: {
@@ -31,73 +31,73 @@ const config: DefenderConfigType = {
   },
   monitors: {
     Ownership: {
-      filter: findAllOwnable(),
+      filter: all(),
       monitor: generateOwnableMonitor(),
       notification: {
         channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
       },
     },
-    'Large-Mint-ERC1155': {
-      notification: {
-        channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
-      },
-      filter: findContractsWithInterface(erc1155abi),
-      monitor: mintMonitor('ERC1155', '10'),
-    },
-    'Large-Mint-ERC20': {
-      notification: {
-        channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
-      },
-      filter: findERC20Contracts(),
-      monitor: mintMonitor('ERC20', '100'),
-    },
-    'Large-Mint-ERC721': {
-      notification: {
-        channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
-      },
-      filter: findContractsWithInterface(erc721abi),
-      monitor: mintMonitor('ERC721', '100'),
-    },
-    'attack-detector': {
-      notification: {
-        channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
-      },
-      monitor: attackDetectorMonitor(),
-      filter: all(),
-    },
-    Proxies: {
-      notification: {
-        channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
-      },
-      monitor: upgradesMonitor(),
-      filter: all(),
-    },
-    AccessControl: {
-      notification: {
-        channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
-      },
-      monitor: accessMonitor(),
-      filter: findContractsWithInterfaces([
-        AccessContolAbi,
-        AccessControlDefaultAdminAbi,
-      ]),
-    },
+    // 'Large-Mint-ERC1155': {
+    //   notification: {
+    //     channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
+    //   },
+    //   filter: findContractsWithInterface(erc1155abi),
+    //   monitor: mintMonitor('ERC1155', '10'),
+    // },
+    // 'Large-Mint-ERC20': {
+    //   notification: {
+    //     channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
+    //   },
+    //   filter: findERC20Contracts(),
+    //   monitor: mintMonitor('ERC20', '100'),
+    // },
+    // 'Large-Mint-ERC721': {
+    //   notification: {
+    //     channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
+    //   },
+    //   filter: findContractsWithInterface(erc721abi),
+    //   monitor: mintMonitor('ERC721', '100'),
+    // },
+    // 'attack-detector': {
+    //   notification: {
+    //     channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
+    //   },
+    //   monitor: attackDetectorMonitor(),
+    //   filter: all(),
+    // },
+    // Proxies: {
+    //   notification: {
+    //     channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
+    //   },
+    //   monitor: upgradesMonitor(),
+    //   filter: all(),
+    // },
+    // AccessControl: {
+    //   notification: {
+    //     channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
+    //   },
+    //   monitor: accessMonitor(),
+    //   filter: findContractsWithInterfaces([
+    //     AccessContolAbi,
+    //     AccessControlDefaultAdminAbi,
+    //   ]),
+    // },
   },
 
   outDir: './out',
-  extractedAccountsMonitoring: {
-    EthBalance: {
-      monitor: accountEthMonitor('10'),
-      filter: all(),
-      notification: {
-        channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
-      },
-    },
-    // LogActions: {
-    //   monitor: accountActivityMonitor('10'),
-    //   filterAccounts: (c) => Promise.resolve(c),
-    // },
-  },
+  // extractedAccountsMonitoring: {
+  //   EthBalance: {
+  //     monitor: accountEthMonitor('10'),
+  //     filter: all(),
+  //     notification: {
+  //       channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
+  //     },
+  //   },
+  // LogActions: {
+  //   monitor: accountActivityMonitor('10'),
+  //   filterAccounts: (c) => Promise.resolve(c),
+  // },
+  // },
   excludeDeployments: [
     'QUICKSWAP_SAND_MATIC',
     'FXCHILD*',
