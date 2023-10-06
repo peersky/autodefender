@@ -1,17 +1,23 @@
 import {getProcessEnv} from './utils';
 import {DefenderServerless} from './types/defenderPluginTypes';
-import MonitoringResources from '../out/monitors.json';
 import {YSentinel} from '@openzeppelin/defender-serverless/lib/types';
 import {DefenderConfigType} from './types';
 import path from 'path';
 export async function config(print: boolean): Promise<DefenderServerless> {
-  const _MonitoringResources = MonitoringResources as any;
   const df: DefenderConfigType = await import(
     path.resolve(
       getProcessEnv(print, 'AUTODEFENDER_CLI_CWD'),
       getProcessEnv(print, 'AUTODEFENDER_CONFIG_PATH')
     )
   );
+  const MonitoringResources = await import(
+    path.resolve(
+      getProcessEnv(print, 'AUTODEFENDER_CLI_CWD'),
+      df.outDir,
+      'monitors.json'
+    )
+  );
+  const _MonitoringResources = MonitoringResources as any;
   if (!df.projectName)
     throw new Error('Project name not set, fix defender.config.ts');
 

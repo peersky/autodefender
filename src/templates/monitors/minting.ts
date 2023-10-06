@@ -1,12 +1,12 @@
 import {ethers} from 'ethers';
-import {TSentinel, TSentinelGetter} from '../../src/types';
+import {TSentinel, TSentinelGetter} from '../../types';
 import ERC1155Abi from '../../abis/IERC1155.json';
 import ERC721Abi from '../../abis/IERC721.json';
 import ERC20Abi from '../../abis/IERC20.json';
-import {IERC1155, IERC20Metadata, IERC721} from '../../src/types/typechain';
+import {IERC1155, IERC20Metadata, IERC721} from '../../types/typechain';
 import {defaultMessage} from '../messages';
 
-import {eventSlicer} from '../../src/utils';
+import {eventSlicer} from '../../utils';
 
 const erc20contract = new ethers.Contract(
   ethers.constants.AddressZero,

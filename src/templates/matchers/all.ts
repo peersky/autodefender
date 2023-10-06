@@ -1,4 +1,4 @@
-import {AddressInfo, MatcherFindings} from '../../src/types';
+import {AddressInfo, MatcherFindings} from '../../types';
 
 export const all =
   (excludeAccounts: string[] = []) =>

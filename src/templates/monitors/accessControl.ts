@@ -1,7 +1,7 @@
 import {ethers} from 'ethers';
-import {TSentinel, TSentinelGetter} from '../../src/types';
-import {eventSlicer} from '../../src/utils';
-import {AccessControlDefaultAdminRules} from '../../src/types/typechain';
+import {TSentinel, TSentinelGetter} from '../../types';
+import {eventSlicer} from '../../utils';
+import {AccessControlDefaultAdminRules} from '../../types/typechain';
 import AccessControlAbi from '../../abis/AccessControlDefaultAdminRules.json';
 import {defaultMessage} from '../messages';
 const accessContract = new ethers.Contract(

@@ -1,4 +1,4 @@
-import {ActionSpec, TSentinel, TSentinelGetter} from '../../src/types';
+import {ActionSpec, TSentinel, TSentinelGetter} from '../../types';
 import {SecretRequires} from '../functions/ethBalanceCheck';
 import {lowEthMessage as defaultMessage} from '../messages';
 

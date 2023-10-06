@@ -1,8 +1,8 @@
 import {Contract, ethers, providers} from 'ethers';
-import {AddressInfo, MatcherFindings} from '../../src/types';
+import {AddressInfo, MatcherFindings} from '../../types';
 import erc20abi from '../../abis/IERC20Metadata.json';
 
-import {IERC20Metadata} from '../../src/types/typechain/IERC20Metadata';
+import {IERC20Metadata} from '../../types/typechain/IERC20Metadata';
 
 const erc20contract = new Contract(
   ethers.constants.AddressZero,

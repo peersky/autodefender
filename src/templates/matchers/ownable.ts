@@ -1,7 +1,7 @@
 import {ethers, providers} from 'ethers';
-import {AddressInfo, MatcherFindings} from '../../src/types';
+import {AddressInfo, MatcherFindings} from '../../types';
 import OwnableAbi from '../../abis/Ownable.json';
-import {Ownable} from '../../src/types/typechain/Ownable';
+import {Ownable} from '../../types/typechain/Ownable';
 import {isAddress} from 'ethers/lib/utils';
 
 const contractOwnableBase = new ethers.Contract(

@@ -1,9 +1,9 @@
 import {ethers} from 'ethers';
-import {TSentinel, TSentinelGetter} from '../../src/types';
+import {TSentinel, TSentinelGetter} from '../../types';
 import OwnableAbi from '../../abis/Ownable.json';
-import {Ownable} from '../../src/types/typechain/Ownable';
+import {Ownable} from '../../types/typechain/Ownable';
 import {defaultMessage} from '../messages';
-import {eventSlicer} from '../../src/utils';
+import {eventSlicer} from '../../utils';
 
 const contractOwnableBase = new ethers.Contract(
   ethers.constants.AddressZero,

@@ -1,26 +1,27 @@
-#!/usr/bin/env ts-node
-const yargs = require('yargs/yargs');
-const {hideBin} = require('yargs/helpers');
-const fs = require('fs');
-const {contractsFormatter} = require('./generators/contracts');
-const {getDeployments} = require('./githubFetch');
-const {monitorsGenerator} = require('./generators/monitors');
+#!/usr/bin/env node
+import yargs from 'yargs/yargs';
+import {hideBin} from 'yargs/helpers';
+import fs from 'fs';
+import {contractsFormatter} from './generators/contracts';
+import {getDeployments} from './githubFetch';
+import {monitorsGenerator} from './generators/monitors';
 
-const {spawn} = require('child_process');
-const {matches, parseAbi} = require('./utils');
-const path = require('path');
-
-const getDirectories = async (source) =>
+import {spawn} from 'child_process';
+import {matches, parseAbi} from './utils';
+import path from 'path';
+import {DefenderConfigType} from './types';
+const extension = process.env.TS_NODE ? 'ts' : 'js';
+const getDirectories = async (source: string) =>
   fs
     .readdirSync(source, {withFileTypes: true})
     .filter((dirent) => dirent.isDirectory())
     .map((dirent) => dirent.name);
-const getFiles = async (source) =>
+const getFiles = async (source: string) =>
   fs
     .readdirSync(source, {withFileTypes: true})
     .filter((dirent) => !dirent.isDirectory());
 
-const getRecords = async (config) => {
+const getRecords = async (config: DefenderConfigType) => {
   let r = [];
   let numNets = 0;
   if (config.path.startsWith('http')) {
@@ -29,10 +30,13 @@ const getRecords = async (config) => {
     const networkDirectories = await getDirectories(config.path);
     console.log('Fetching from... ', config.path);
     for (const networkDir of networkDirectories) {
+      if (!config.networks) throw new Error('No config.networks found');
       const nKey = Object.keys(config.networks).find(
-        (_nkey) =>
+        (_nkey: any) =>
           _nkey === networkDir ||
-          (config.networks[_nkey].directoryName &&
+          //@ts-expect-error later fix
+          (config.networks[_nkey]?.directoryName &&
+            //@ts-expect-error later fix
             networkDir === config.networks[_nkey].directoryName)
       );
       if (nKey) {
@@ -46,7 +50,7 @@ const getRecords = async (config) => {
             deploymentFile.name !== '.migrations.json'
           ) {
             const file = JSON.parse(
-              fs.readFileSync(p + '/' + deploymentFile.name)
+              fs.readFileSync(p + '/' + deploymentFile.name).toString()
             );
 
             const rec = {
@@ -71,32 +75,24 @@ const getRecords = async (config) => {
   return r;
 };
 
-/** @dev
- *  ******HARDHAT DEPLOY SCENARIO***************
- * - Fetch data from hardhhat deployments
- *  --config path to defender.config.json
- * - Extract address list by network
- *  --networks matic, mumbai, etc ()
- * - For each supported network get contract ABI's
- * - Get ABI's
- * - If ABI -> create defender contract resource
- * -
- */
 yargs(hideBin(process.argv))
   .command(
     'contracts',
     'Creates from hardhat deployment artifacts',
     (yargs) => {
       return yargs
-        .positional('in', {
-          describe: 'path where deployments folder resides',
-          // default: 10,
+        .positional('config', {
+          describe: 'Path to configuration file',
+          type: 'string',
         })
-        .positional('config', {describe: 'Path to configuration file'});
+        .demandOption(['config']);
     },
     async (argv) => {
-      const config = require(path.join(process.cwd(), argv.config));
-      let deploymentRecords = await getRecords(config);
+      console.log('Contracts');
+      const cPath = path.join(process.cwd(), argv.config);
+      const config = await import(cPath);
+      if (!config) throw new Error(`Config file not found in path ${cPath}`);
+      const deploymentRecords = await getRecords(config);
 
       try {
         fs.mkdirSync(config.outDir);
@@ -104,8 +100,10 @@ yargs(hideBin(process.argv))
         //
       }
       console.log(
-        'asadadadad',
-        path.join(process.cwd(), config.outDir, 'contracts.json')
+        'path',
+        path.join(process.cwd(), config.outDir, 'contracts.json'),
+        'dirname',
+        __dirname
       );
       fs.writeFileSync(
         path.join(process.cwd(), config.outDir, 'contracts.json'),
@@ -114,7 +112,7 @@ yargs(hideBin(process.argv))
 
       const child = spawn(
         'sls',
-        ['deploy', '--stage', 'dev', '--config', 'contracts.ts'],
+        ['deploy', '--stage', 'dev', '--config', `contracts.${extension}`],
         {
           cwd: __dirname,
           env: {
@@ -125,13 +123,13 @@ yargs(hideBin(process.argv))
         }
         // {stdio: [stdin, 'pipe', 'pipe'], encoding: 'utf8', shell: true}
       );
-      // child.stdout.pipe(process.stdout);
-      // child.stderr.pipe(process.stderr);
+      child.stdout.pipe(process.stdout);
+      child.stderr.pipe(process.stderr);
       process.stdin.pipe(child.stdin);
-      child.stdout.on('data', (data) => {
-        // if (!data.toString().length < 500)
-        process.stdout.write(data);
-      });
+      // child.stdout.on('data', (data) => {
+      //   // if (!data.toString().length < 500)
+      //   process.stdout.write(data);
+      // });
     }
   )
   .command(
@@ -139,15 +137,17 @@ yargs(hideBin(process.argv))
     'Creates from hardhat deployment artifacts',
     (yargs) => {
       return yargs
-        .positional('in', {
-          describe: 'path where deployments folder resides',
-          // default: 10,
+        .positional('config', {
+          describe: 'Path to configuration file',
+          type: 'string',
         })
-        .positional('config', {describe: 'Path to configuration file'});
+        .demandOption(['config']);
     },
     async (argv) => {
-      const config = require(path.join(process.cwd(), argv.config));
-      let deploymentRecords = await getRecords(config);
+      const cPath = path.join(process.cwd(), argv.config);
+      const config = await import(cPath);
+      if (!config) throw new Error(`Config file not found in path ${cPath}`);
+      const deploymentRecords = await getRecords(config);
 
       try {
         fs.mkdirSync(config.outDir);
@@ -161,9 +161,10 @@ yargs(hideBin(process.argv))
           JSON.stringify(monitors, null, 4)
         );
         console.log('__dirname', __dirname);
+
         const child = spawn(
           'sls',
-          ['deploy', '--stage', 'dev', '--config', 'monitors.ts'],
+          ['deploy', '--stage', 'dev', '--config', `monitors.${extension}`],
           // {stdio: 'overlapped'}
           {
             serialization: 'advanced',
@@ -176,13 +177,13 @@ yargs(hideBin(process.argv))
           }
         );
         // child.sti;
-        // child.stdout.pipe(process.stdout);
-        // child.stderr.pipe(process.stderr);
+        child.stdout.pipe(process.stdout);
+        child.stderr.pipe(process.stderr);
         process.stdin.pipe(child.stdin);
         // child.stdio;
-        child.stdout.on('data', (data) => {
-          if (data.toString().length < 512) process.stdout.write(data);
-        });
+        // child.stdout.on('data', (data) => {
+        //   if (data.toString().length < 512) process.stdout.write(data);
+        // });
       }
     }
   )

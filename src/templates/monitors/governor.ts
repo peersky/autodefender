@@ -1,7 +1,7 @@
 import {ethers} from 'ethers';
-import {TSentinel, TSentinelGetter} from '../../src/types';
-import {eventSlicer} from '../../src/utils';
-import {IGovernor} from '../../src/types/typechain';
+import {TSentinel, TSentinelGetter} from '../../types';
+import {eventSlicer} from '../../utils';
+import {IGovernor} from '../../types/typechain';
 import GovernorAbi from '../../abis/IGovernor.json';
 import {defaultMessage} from '../messages';
 const governorContract = new ethers.Contract(

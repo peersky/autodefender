@@ -1,8 +1,8 @@
 import {ethers} from 'ethers';
-import {TSentinel, TSentinelGetter} from '../../src/types';
+import {TSentinel, TSentinelGetter} from '../../types';
 import ProxiesAbi from '../../abis/Proxies.json';
-import {eventSlicer} from '../../src/utils';
-import {Proxies} from '../../src/types/typechain';
+import {eventSlicer} from '../../utils';
+import {Proxies} from '../../types/typechain';
 import {defaultMessage} from '../messages';
 const proxyContract = new ethers.Contract(
   ethers.constants.AddressZero,

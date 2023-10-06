@@ -1,4 +1,4 @@
-import {TFortaSentinel, TSentinelGetter} from '../../src/types';
+import {TFortaSentinel, TSentinelGetter} from '../../types';
 import OwnableAbi from '../../abis/Ownable.json';
 import {fortaMessage} from '../messages';
 

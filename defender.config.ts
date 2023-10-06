@@ -6,19 +6,19 @@ import erc721abi from './abis/IERC721.json';
 import AccessControlDefaultAdminAbi from './abis/IAccessControlDefaultAdminRules.json';
 import AccessContolAbi from './abis/IAccessControl.json';
 import {DefenderConfigType} from './src/types/index';
-import {findAllOwnable} from './templates/matchers/ownable';
-import {generateOwnableMonitor} from './templates/monitors/ownership';
-import {mintMonitor} from './templates/monitors/minting';
-import {attackDetectorMonitor} from './templates/monitors/attackDetector';
-import {upgradesMonitor} from './templates/monitors/upgrades';
-import {accountEthMonitor} from './templates/monitors/accountEth';
+import {findAllOwnable} from './src/templates/matchers/ownable';
+import {generateOwnableMonitor} from './src/templates/monitors/ownership';
+import {mintMonitor} from './src/templates/monitors/minting';
+import {attackDetectorMonitor} from './src/templates/monitors/attackDetector';
+import {upgradesMonitor} from './src/templates/monitors/upgrades';
+import {accountEthMonitor} from './src/templates/monitors/accountEth';
 import {
   findContractsWithInterface,
   findContractsWithInterfaces,
-} from './templates/matchers/interface';
-import {accessMonitor} from './templates/monitors/accessControl';
-import {findERC20Contracts} from './templates/matchers/erc20';
-import {all} from './templates/matchers/all';
+} from './src/templates/matchers/interface';
+import {accessMonitor} from './src/templates/monitors/accessControl';
+import {findERC20Contracts} from './src/templates/matchers/erc20';
+import {all} from './src/templates/matchers/all';
 
 const config: DefenderConfigType = {
   projectName: 'WORKSHOP1',
