@@ -14,52 +14,52 @@ Structure of this codebase is made with plug-in-ability in mind, so adding new t
 
 ### Installing and using as package
 
-````
+```
 pnpm add autodefender
 ```
+
 or
+
 ```
 yarn add autodefender
 ```
 
-
 then create config file `defender.config.js`:
 
 ```js
-const { getProcessEnv, getSlackNotifyChannel } = require("autodefender/utils");
-const polygonRPC = getProcessEnv(false, "POLYGON_RPC_URL");
-const mainnerRPC = getProcessEnv(false, "MAINNET_RPC_URL");
+const {getProcessEnv, getSlackNotifyChannel} = require('autodefender/utils');
+const polygonRPC = getProcessEnv(false, 'POLYGON_RPC_URL');
+const mainnerRPC = getProcessEnv(false, 'MAINNET_RPC_URL');
 const {
   generateOwnableMonitor,
-} = require("autodefender/templates/monitors/ownership");
-const { all } = require("autodefender/templates/matchers/all");
+} = require('autodefender/templates/monitors/ownership');
+const {all} = require('autodefender/templates/matchers/all');
 
 /** @type import('autodefender/src/types').DefenderConfigType */
 const config = {
-  projectName: "WORKSHOP1",
+  projectName: 'WORKSHOP1',
   ssot: false,
   // path: 'https://api.github.com/repos/thesandboxgame/sandbox-smart-contracts/contents/packages/core/deployments',
-  path: "./deployments",
+  path: './deployments',
   networks: {
-    matic: { rpc: polygonRPC, directoryName: "polygon" },
-    mainnet: { rpc: mainnerRPC, directoryName: "mainnet" },
+    matic: {rpc: polygonRPC, directoryName: 'polygon'},
+    mainnet: {rpc: mainnerRPC, directoryName: 'mainnet'},
   },
   monitors: {
     Ownership: {
       filter: all(),
       monitor: generateOwnableMonitor(),
       notification: {
-        channels: [getSlackNotifyChannel(getProcessEnv(false, "SLACK_URL"))],
+        channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
       },
     },
   },
-  outDir: "./out",
-  extractedAccountsMonitoring: { },
-  excludeDeployments: ["Old_*"],
-  excludeAccounts: ["0x000000000000AAeB6D7670E522A718067333cd4E"],
+  outDir: './out',
+  extractedAccountsMonitoring: {},
+  excludeDeployments: ['Old_*'],
+  excludeAccounts: ['0x000000000000AAeB6D7670E522A718067333cd4E'],
 };
 module.exports = config;
-
 ```
 
 To deploy contracts:
@@ -69,6 +69,7 @@ yarn autodefender contracts --config defender.config.js
 ```
 
 To deploy monitors:
+
 ```
 yarn autodefender monitors --config defender.config.js
 ```
@@ -259,4 +260,7 @@ Scoped secrets use secret name and function visible name to combine it to a secr
 ## Function getter
 
 Are not yet supported but it's easy to implement. Add your PR ;)
-````
+
+```
+
+```
