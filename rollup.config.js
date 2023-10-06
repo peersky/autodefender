@@ -9,7 +9,7 @@ module.exports = [
     input: './compile/ethBalanceCheck.js',
     output: {
       exports: 'named',
-      file: './templates/functions/ethBalanceCheck/index.js',
+      file: './src/templates/functions/ethBalanceCheck/index.js',
       format: 'cjs',
     },
     plugins: [
@@ -31,7 +31,7 @@ module.exports = [
     input: './compile/onlyTxFrom.js',
     output: {
       exports: 'named',
-      file: './templates/functions/onlyTxFrom/index.js',
+      file: './src/templates/functions/onlyTxFrom/index.js',
       format: 'cjs',
     },
     plugins: [

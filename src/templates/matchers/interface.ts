@@ -1,9 +1,9 @@
 import {Contract, ethers, providers} from 'ethers';
-import {AbiItem, AddressInfo, MatcherFindings} from '../../src/types';
+import {AbiItem, AddressInfo, MatcherFindings} from '../../types';
 import erc165abi from '../../abis/IERC165.json';
-import {getInterfaceID} from '../../src/utils';
+import {getInterfaceID} from '../../utils';
 
-import {IERC165} from '../../src/types/typechain/IERC165';
+import {IERC165} from '../../types/typechain/IERC165';
 
 const contract165Base = new ethers.Contract(
   ethers.constants.AddressZero,

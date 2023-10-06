@@ -6,23 +6,23 @@ import erc721abi from './abis/IERC721.json';
 import AccessControlDefaultAdminAbi from './abis/IAccessControlDefaultAdminRules.json';
 import AccessContolAbi from './abis/IAccessControl.json';
 import {DefenderConfigType} from './src/types/index';
-import {findAllOwnable} from './templates/matchers/ownable';
-import {generateOwnableMonitor} from './templates/monitors/ownership';
-import {mintMonitor} from './templates/monitors/minting';
-import {attackDetectorMonitor} from './templates/monitors/attackDetector';
-import {upgradesMonitor} from './templates/monitors/upgrades';
-import {accountEthMonitor} from './templates/monitors/accountEth';
+import {findAllOwnable} from './src/templates/matchers/ownable';
+import {generateOwnableMonitor} from './src/templates/monitors/ownership';
+import {mintMonitor} from './src/templates/monitors/minting';
+import {attackDetectorMonitor} from './src/templates/monitors/attackDetector';
+import {upgradesMonitor} from './src/templates/monitors/upgrades';
+import {accountEthMonitor} from './src/templates/monitors/accountEth';
 import {
   findContractsWithInterface,
   findContractsWithInterfaces,
-} from './templates/matchers/interface';
-import {accessMonitor} from './templates/monitors/accessControl';
-import {findERC20Contracts} from './templates/matchers/erc20';
-import {all} from './templates/matchers/all';
+} from './src/templates/matchers/interface';
+import {accessMonitor} from './src/templates/monitors/accessControl';
+import {findERC20Contracts} from './src/templates/matchers/erc20';
+import {all} from './src/templates/matchers/all';
 
 const config: DefenderConfigType = {
   projectName: 'WORKSHOP1',
-  ssot: true,
+  ssot: false,
   // path: 'https://api.github.com/repos/thesandboxgame/sandbox-smart-contracts/contents/packages/core/deployments',
   path: './deployments',
   networks: {
@@ -31,73 +31,73 @@ const config: DefenderConfigType = {
   },
   monitors: {
     Ownership: {
-      filter: findAllOwnable(),
+      filter: all(),
       monitor: generateOwnableMonitor(),
       notification: {
         channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
       },
     },
-    'Large-Mint-ERC1155': {
-      notification: {
-        channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
-      },
-      filter: findContractsWithInterface(erc1155abi),
-      monitor: mintMonitor('ERC1155', '10'),
-    },
-    'Large-Mint-ERC20': {
-      notification: {
-        channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
-      },
-      filter: findERC20Contracts(),
-      monitor: mintMonitor('ERC20', '100'),
-    },
-    'Large-Mint-ERC721': {
-      notification: {
-        channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
-      },
-      filter: findContractsWithInterface(erc721abi),
-      monitor: mintMonitor('ERC721', '100'),
-    },
-    'attack-detector': {
-      notification: {
-        channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
-      },
-      monitor: attackDetectorMonitor(),
-      filter: all(),
-    },
-    Proxies: {
-      notification: {
-        channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
-      },
-      monitor: upgradesMonitor(),
-      filter: all(),
-    },
-    AccessControl: {
-      notification: {
-        channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
-      },
-      monitor: accessMonitor(),
-      filter: findContractsWithInterfaces([
-        AccessContolAbi,
-        AccessControlDefaultAdminAbi,
-      ]),
-    },
+    // 'Large-Mint-ERC1155': {
+    //   notification: {
+    //     channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
+    //   },
+    //   filter: findContractsWithInterface(erc1155abi),
+    //   monitor: mintMonitor('ERC1155', '10'),
+    // },
+    // 'Large-Mint-ERC20': {
+    //   notification: {
+    //     channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
+    //   },
+    //   filter: findERC20Contracts(),
+    //   monitor: mintMonitor('ERC20', '100'),
+    // },
+    // 'Large-Mint-ERC721': {
+    //   notification: {
+    //     channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
+    //   },
+    //   filter: findContractsWithInterface(erc721abi),
+    //   monitor: mintMonitor('ERC721', '100'),
+    // },
+    // 'attack-detector': {
+    //   notification: {
+    //     channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
+    //   },
+    //   monitor: attackDetectorMonitor(),
+    //   filter: all(),
+    // },
+    // Proxies: {
+    //   notification: {
+    //     channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
+    //   },
+    //   monitor: upgradesMonitor(),
+    //   filter: all(),
+    // },
+    // AccessControl: {
+    //   notification: {
+    //     channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
+    //   },
+    //   monitor: accessMonitor(),
+    //   filter: findContractsWithInterfaces([
+    //     AccessContolAbi,
+    //     AccessControlDefaultAdminAbi,
+    //   ]),
+    // },
   },
 
   outDir: './out',
-  extractedAccountsMonitoring: {
-    EthBalance: {
-      monitor: accountEthMonitor('10'),
-      filter: all(),
-      notification: {
-        channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
-      },
-    },
-    // LogActions: {
-    //   monitor: accountActivityMonitor('10'),
-    //   filterAccounts: (c) => Promise.resolve(c),
-    // },
-  },
+  // extractedAccountsMonitoring: {
+  //   EthBalance: {
+  //     monitor: accountEthMonitor('10'),
+  //     filter: all(),
+  //     notification: {
+  //       channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
+  //     },
+  //   },
+  // LogActions: {
+  //   monitor: accountActivityMonitor('10'),
+  //   filterAccounts: (c) => Promise.resolve(c),
+  // },
+  // },
   excludeDeployments: [
     'QUICKSWAP_SAND_MATIC',
     'FXCHILD*',

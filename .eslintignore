@@ -6,7 +6,9 @@ typechain
 typechain-types
 templates/functions
 compile
-
+src/functions
+dist
+defender.config.ts
 # Hardhat files
 cache
 artifacts

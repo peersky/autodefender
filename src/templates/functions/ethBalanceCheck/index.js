@@ -5,17 +5,6 @@ Object.defineProperty(exports, '__esModule', {value: true});
 var require$$0 = require('defender-relay-client/lib/ethers');
 var require$$1 = require('ethers');
 
-var commonjsGlobal =
-  typeof globalThis !== 'undefined'
-    ? globalThis
-    : typeof window !== 'undefined'
-    ? window
-    : typeof global !== 'undefined'
-    ? global
-    : typeof self !== 'undefined'
-    ? self
-    : {};
-
 var ethBalanceCheck = {};
 
 var scopedSecrets = {};
@@ -39,15 +28,10 @@ const ScopedSecretsProvider = function (event) {
     for (const i of key(name)) if (i in target) return target[i];
   };
   //eslint-disable-next-line
-  return new Proxy(event.secrets, {get: (target, name) => find(name, target)});
+    return new Proxy(event.secrets, { get: (target, name) => find(name, target) });
 };
 scopedSecrets.ScopedSecretsProvider = ScopedSecretsProvider;
 
-var __importDefault =
-  (commonjsGlobal && commonjsGlobal.__importDefault) ||
-  function (mod) {
-    return mod && mod.__esModule ? mod : {default: mod};
-  };
 Object.defineProperty(ethBalanceCheck, '__esModule', {value: true});
 exports.SecretRequires =
   ethBalanceCheck.SecretRequires =
@@ -55,7 +39,7 @@ exports.SecretRequires =
   ethBalanceCheck.handler =
     void 0;
 const ethers_1 = require$$0;
-const ethers_2 = __importDefault(require$$1);
+const ethers_2 = require$$1;
 const scopedSecrets_1 = scopedSecrets;
 async function handler(event) {
   const match = event?.request?.body;
@@ -72,9 +56,9 @@ async function handler(event) {
     for (const address of evt.matchedAddresses) {
       console.log('checking balance of ', address);
       const balance = await provider.getBalance(address);
-      const threshold = ethers_2.default.utils.parseEther(_threshold);
-      console.log('balance:', ethers_2.default.utils.formatEther(balance));
-      console.log('threshold:', ethers_2.default.utils.formatEther(threshold));
+      const threshold = ethers_2.ethers.utils.parseEther(_threshold);
+      console.log('balance:', ethers_2.ethers.utils.formatEther(balance));
+      console.log('threshold:', ethers_2.ethers.utils.formatEther(threshold));
       console.log('threshold.gt(balance)', threshold > balance);
       if (threshold.gt(balance)) {
         retval.matches.push({
@@ -82,7 +66,7 @@ async function handler(event) {
           metadata: {
             address: address,
             balance: balance,
-            threshold: ethers_2.default.utils.formatEther(threshold),
+            threshold: ethers_2.ethers.utils.formatEther(threshold),
           },
         });
       }

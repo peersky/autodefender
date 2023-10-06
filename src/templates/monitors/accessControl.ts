@@ -1,17 +1,13 @@
 import {ethers} from 'ethers';
-import {TSentinel, TSentinelGetter} from '../../src/types';
-import fs from 'fs';
-import {eventSlicer} from '../../src/utils';
-import {AccessControlDefaultAdminRules} from '../../src/types/typechain';
+import {TSentinel, TSentinelGetter} from '../../types';
+import {eventSlicer} from '../../utils';
+import {AccessControlDefaultAdminRules} from '../../types/typechain';
 import AccessControlAbi from '../../abis/AccessControlDefaultAdminRules.json';
+import {defaultMessage} from '../messages';
 const accessContract = new ethers.Contract(
   ethers.constants.AddressZero,
   AccessControlAbi
 ) as unknown as AccessControlDefaultAdminRules;
-
-const defaultMessage = fs
-  .readFileSync('./templates/messages/info-message.md', 'utf8')
-  .toString();
 
 export const accessMonitor =
   (

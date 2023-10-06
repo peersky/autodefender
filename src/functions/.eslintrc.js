@@ -24,7 +24,7 @@ module.exports = {
       parserOptions: {
         project: [tsconfigPath],
         ecmaVersion: 2020,
-        sourceType: 'module',
+        sourceType: 'commonjs',
       },
       plugins: ['mocha', '@typescript-eslint'],
       extends: [
@@ -35,6 +35,7 @@ module.exports = {
       ],
       rules: {
         '@typescript-eslint/no-misused-promises': 'error',
+        '@typescript-eslint/no-floating-promises': 'error',
         '@typescript-eslint/no-explicit-any': 'off',
       },
     },
