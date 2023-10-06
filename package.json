@@ -1,5 +1,12 @@
 {
   "name": "autodefender",
+  "description": "Manage OpenZeppelin Defender Deployments without a hassle",
+  "author": "Peersky",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/peersky/autodefender.git",
+    "directory": "/"
+  },
   "version": "0.3.0",
   "main": "index.js",
   "bin": {
