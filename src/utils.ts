@@ -57,6 +57,20 @@ export function getSlackNotifyChannel(
   };
 }
 
+export function getDiscordNotifyConfig(
+  url: string,
+  name = 'Discord notifications'
+): YNotification {
+  return {
+    type: 'discord',
+    paused: false,
+    name: name,
+    config: {
+      url,
+    },
+  };
+}
+
 export function getStageFromArgs(): Stage {
   // Used to print, it will fails with sls
   if (process.env.STAGE) {
