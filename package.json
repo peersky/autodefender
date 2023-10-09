@@ -7,7 +7,7 @@
     "url": "https://github.com/peersky/autodefender.git",
     "directory": "/"
   },
-  "version": "0.3.4",
+  "version": "0.4.0",
   "main": "index.js",
   "bin": {
     "autodefend": "./src/cli.js"
@@ -29,8 +29,8 @@
     "sls:prod:clean": "sls remove --stage prod --config ",
     "types": "typechain --target ethers-v5 ./abis/*.json --out-dir ./src/types/typechain",
     "solc:abis": "solc contracts/*.sol node_modules/@openzeppelin/contracts/governance/IGovernor.sol node_modules/@openzeppelin/contracts/interfaces/*.sol node_modules/@openzeppelin/contracts/access/*.sol  --abi -o ./abis --pretty-json --overwrite && ./src/renameAbis.sh",
-    "monitors": "export TS_NODE=true && ts-node src/cli.js monitors --config ./defender.config.ts",
-    "contracts": "export TS_NODE=true && ts-node src/cli.js contracts --config ./defender.config.ts",
+    "monitors": "export TS_NODE=true && ts-node src/cli.ts monitors --config ./defender.config.ts",
+    "contracts": "export TS_NODE=true && ts-node src/cli.ts contracts --config ./defender.config.ts",
     "prebuild": "tsc -p src/functions/tsconfig.json && rollup -c",
     "build": "tsc && cp src/autodefender.package.json dist/package.json",
     "postbuild": "cp README.md dist && cp -r ./src/abis/ ./dist/abis/ && cp -r ./src/templates/messages/*.md ./dist/templates/messages/ && prettier --write \"dist/**/*.{ts,js,json}\""

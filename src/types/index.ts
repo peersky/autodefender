@@ -37,6 +37,7 @@ export interface NotifyConfig {
 
 export interface DefenderConfigType {
   path: string;
+  getter?: (config: DefenderConfigType) => Promise<DeploymentRecord[]>;
   ssot: boolean;
   projectName: string;
   networks?: DefenderConfigNetworksType;
@@ -63,6 +64,9 @@ export type AbiItem = ReadonlyArray<Fragment | JsonFragment | string>;
 export interface AddressInfo {
   address: string;
   abi?: ReadonlyArray<Fragment | JsonFragment | string>;
+  name?: string;
+  network?: string;
+  aux?: any;
 }
 export type RelationshipType =
   | 'Priveledged'
@@ -145,7 +149,7 @@ export interface CustomMonitor {
 }
 export type CustomMonitoringType = Record<string, CustomMonitor>;
 export interface DeploymentRecord {
-  network: string;
+  network: Network;
   name: string;
   address: string;
   abi: any[];
