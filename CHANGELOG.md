@@ -1,5 +1,11 @@
 # defender-monitoring
 
+## 0.6.0
+
+### Minor Changes
+
+- add discord notify config getter
+
 ## 0.5.0
 
 ### Minor Changes
