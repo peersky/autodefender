@@ -1,29 +1,15 @@
 import {getProcessEnv, getSlackNotifyChannel} from './src/utils';
 const polygonRPC = getProcessEnv(false, 'POLYGON_RPC_URL');
 const mainnerRPC = getProcessEnv(false, 'MAINNET_RPC_URL');
-import erc1155abi from './abis/IERC1155.json';
-import erc721abi from './abis/IERC721.json';
-import AccessControlDefaultAdminAbi from './abis/IAccessControlDefaultAdminRules.json';
-import AccessContolAbi from './abis/IAccessControl.json';
-import {DefenderConfigType} from './src/types/index';
-import {findAllOwnable} from './src/templates/matchers/ownable';
+import {DefenderConfigType} from './src/types';
 import {generateOwnableMonitor} from './src/templates/monitors/ownership';
-import {mintMonitor} from './src/templates/monitors/minting';
-import {attackDetectorMonitor} from './src/templates/monitors/attackDetector';
-import {upgradesMonitor} from './src/templates/monitors/upgrades';
-import {accountEthMonitor} from './src/templates/monitors/accountEth';
-import {
-  findContractsWithInterface,
-  findContractsWithInterfaces,
-} from './src/templates/matchers/interface';
-import {accessMonitor} from './src/templates/monitors/accessControl';
-import {findERC20Contracts} from './src/templates/matchers/erc20';
 import {all} from './src/templates/matchers/all';
-
+import {getDeployments} from './src/githubFetch';
 const config: DefenderConfigType = {
   projectName: 'WORKSHOP1',
   ssot: false,
   // path: 'https://api.github.com/repos/thesandboxgame/sandbox-smart-contracts/contents/packages/core/deployments',
+  // getter: getDeployments,
   path: './deployments',
   networks: {
     matic: {rpc: polygonRPC, directoryName: 'polygon'},
@@ -31,10 +17,17 @@ const config: DefenderConfigType = {
   },
   monitors: {
     Ownership: {
-      filter: all(),
+      filter: all(undefined, 2),
       monitor: generateOwnableMonitor(),
-      notification: {
-        channels: [getSlackNotifyChannel(getProcessEnv(false, 'SLACK_URL'))],
+      notification: (info) => {
+        return {
+          channels: [
+            getSlackNotifyChannel(
+              getProcessEnv(false, `SLACK_URL_${info.name}_${info.network}`),
+              `Ownership Slack ${info.name} ${info.network}`
+            ),
+          ],
+        };
       },
     },
     // 'Large-Mint-ERC1155': {

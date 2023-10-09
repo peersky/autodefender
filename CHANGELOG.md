@@ -1,5 +1,11 @@
 # defender-monitoring
 
+## 0.5.0
+
+### Minor Changes
+
+- Added ability to define moniotrs.[moniotr].notification as function. Such usage results unique notification being generated per contract finding.
+
 ## 0.4.0
 
 ### Minor Changes

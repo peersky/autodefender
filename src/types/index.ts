@@ -130,7 +130,8 @@ export interface MatcherFindings {
   related?: RelatedAccount[];
 }
 export interface DefenderMonitorTemplate {
-  notification: NotifyConfig;
+  notification: NotifyConfig | {(finding: AddressInfo): NotifyConfig};
+  // notifyPerFinding: boolean;
   monitor: TSentinelGetter<
     Record<string, string | never>,
     Record<string, string | never>

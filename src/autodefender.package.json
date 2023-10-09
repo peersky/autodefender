@@ -1,6 +1,6 @@
 {
   "name": "autodefender",
-  "version": "0.3.4",
+  "version": "0.5.0",
   "main": "cli.js",
   "bin": {
     "autodefend": "cli.js"
