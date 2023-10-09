@@ -5,7 +5,7 @@ import fs from 'fs';
 import {contractsFormatter} from './generators/contracts';
 import {getDeployments} from './githubFetch';
 import {monitorsGenerator} from './generators/monitors';
-
+import _ from 'lodash';
 import {spawn} from 'child_process';
 import {matches, parseAbi} from './utils';
 import path from 'path';
@@ -24,54 +24,61 @@ const getFiles = async (source: string) =>
 const getRecords = async (config: DefenderConfigType) => {
   let r = [];
   let numNets = 0;
-  if (config.path.startsWith('http')) {
-    r = await getDeployments(config);
-  } else {
-    const networkDirectories = await getDirectories(config.path);
-    console.log('Fetching from... ', config.path);
-    for (const networkDir of networkDirectories) {
-      if (!config.networks) throw new Error('No config.networks found');
-      const nKey = Object.keys(config.networks).find(
-        (_nkey: any) =>
-          _nkey === networkDir ||
-          //@ts-expect-error later fix
-          (config.networks[_nkey]?.directoryName &&
+  if (!config.getter) {
+    if (config.path.startsWith('http')) {
+      r = await getDeployments(config);
+    } else {
+      const networkDirectories = await getDirectories(config.path);
+      console.log('Fetching from... ', config.path);
+      for (const networkDir of networkDirectories) {
+        if (!config.networks) throw new Error('No config.networks found');
+        const nKey = Object.keys(config.networks).find(
+          (_nkey: any) =>
+            _nkey === networkDir ||
             //@ts-expect-error later fix
-            networkDir === config.networks[_nkey].directoryName)
-      );
-      if (nKey) {
-        numNets += 1;
-        const p = config.path + '/' + networkDir;
-        const networkDeploymentFiles = await getFiles(p);
-        for (const deploymentFile of networkDeploymentFiles) {
-          if (
-            !matches(deploymentFile.name, config.excludeDeployments) &&
-            deploymentFile.name !== '.chainId' &&
-            deploymentFile.name !== '.migrations.json'
-          ) {
-            const file = JSON.parse(
-              fs.readFileSync(p + '/' + deploymentFile.name).toString()
-            );
+            (config.networks[_nkey]?.directoryName &&
+              //@ts-expect-error later fix
+              networkDir === config.networks[_nkey].directoryName)
+        );
+        if (nKey) {
+          numNets += 1;
+          const p = config.path + '/' + networkDir;
+          const networkDeploymentFiles = await getFiles(p);
+          for (const deploymentFile of networkDeploymentFiles) {
+            if (
+              !matches(deploymentFile.name, config.excludeDeployments) &&
+              deploymentFile.name !== '.chainId' &&
+              deploymentFile.name !== '.migrations.json'
+            ) {
+              const file = JSON.parse(
+                fs.readFileSync(p + '/' + deploymentFile.name).toString()
+              );
 
-            const rec = {
-              name: deploymentFile.name.replace(/\.[^/.]+$/, ''),
-              abi: file.abi ? parseAbi(file.abi) : [],
-              network: nKey,
-              address: file.address,
-            };
-            r.push(rec);
+              const rec = {
+                name: deploymentFile.name.replace(/\.[^/.]+$/, ''),
+                abi: file.abi ? parseAbi(file.abi) : [],
+                network: nKey,
+                address: file.address,
+              };
+              r.push(rec);
+            }
           }
         }
       }
     }
+    console.log(
+      'Found ',
+      r.length,
+      'addresses in directory across',
+      numNets,
+      ' networks'
+    );
+  } else {
+    r = await config.getter(config);
+    const result = _.countBy(r, (x) => x.network);
+    console.log('Using custom parser found ', r.length, 'records:', result);
   }
-  console.log(
-    'Found ',
-    r.length,
-    'addresses in directory across',
-    numNets,
-    ' networks'
-  );
+
   return r;
 };
 

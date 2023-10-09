@@ -1,5 +1,11 @@
 # defender-monitoring
 
+## 0.4.0
+
+### Minor Changes
+
+- Added abilitu to use custom parser
+
 ## 0.3.0
 
 ### Minor Changes

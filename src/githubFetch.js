@@ -38,7 +38,9 @@ const getDeployments = async (config) => {
 
           if (rec.address && rec.abi) {
             if (rec.abi.length == 1) {
-              const transform = ethers.Interface.from(rec.abi).format('full');
+              const transform = new ethers.utils.Interface(rec.abi).format(
+                'full'
+              );
               rec.abi = transform;
             }
             deploymentRecords.push({
