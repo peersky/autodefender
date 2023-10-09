@@ -61,30 +61,62 @@ export const monitorsGenerator = async (
       for (const monitorName in config.monitors) {
         console.log(`Building ${monitorName} monitor for ${networkKey}...`);
         const template = config.monitors[monitorName];
-        if (monitors[`${monitorName}.${networkKey}`])
-          throw new Error(
-            'Monitor' + `${monitorName}.${networkKey}` + ' Already defined'
-          );
-        _monitorPromises[`${monitorName}.${networkKey}`] = template
-          .filter(nDeployments, provider)
-          .then(async (findings) => {
+        if (!_.isFunction(template.notification)) {
+          const key = `${monitorName}.${networkKey}`;
+          if (monitors[key])
+            throw new Error('Monitor' + key + ' Already defined');
+          _monitorPromises[key] = template
+            .filter(nDeployments, provider)
+            .then(async (findings) => {
+              findings.forEach((finding) => {
+                if (finding.related && finding.related.length > 0)
+                  reledAccounts.push(...finding.related);
+              });
+              return monitorBuilder(
+                template.monitor,
+                findings,
+                template.notification as NotifyConfig,
+                provider,
+                networkKey
+              ).then((r) => {
+                monitors[key] = _.cloneDeep(r.monitor);
+                functions = {...functions, ...r.autotasks};
+                secrets = {...secrets, ...r.secrets};
+                return r;
+              });
+            });
+        } else {
+          template.filter(nDeployments, provider).then(async (findings) => {
             findings.forEach((finding) => {
+              if (!_.isFunction(template.notification))
+                throw new Error(
+                  'template.notification expected to be function'
+                );
               if (finding.related && finding.related.length > 0)
                 reledAccounts.push(...finding.related);
-            });
-            return monitorBuilder(
-              template.monitor,
-              findings,
-              template.notification,
-              provider,
-              networkKey
-            ).then((r) => {
-              monitors[`${monitorName}.${networkKey}`] = _.cloneDeep(r.monitor);
-              functions = {...functions, ...r.autotasks};
-              secrets = {...secrets, ...r.secrets};
-              return r;
+              if (!finding.account.name)
+                throw new Error(
+                  'When using channels as function, findings must return findings.account.name'
+                );
+              const key = `${monitorName}.${networkKey}.${finding.account.name}`;
+              if (monitors[key])
+                throw new Error('Monitor' + key + ' Already defined');
+              _monitorPromises[key] = monitorBuilder(
+                template.monitor,
+                [finding],
+                template.notification(finding.account),
+                provider,
+                networkKey
+              ).then((r) => {
+                monitors[key] = _.cloneDeep(r.monitor);
+                monitors[key].name += ' ' + finding.account.name;
+                functions = {...functions, ...r.autotasks};
+                secrets = {...secrets, ...r.secrets};
+                return r;
+              });
             });
           });
+        }
       }
 
       await Promise.all(Object.values(_monitorPromises));
@@ -93,35 +125,62 @@ export const monitorsGenerator = async (
           `Building ${accountMonitorName} monitor for ${networkKey}...`
         );
         const template = config.extractedAccountsMonitoring[accountMonitorName];
-
-        if (monitors[`${accountMonitorName}.${networkKey}`])
-          throw new Error(
-            'Monitor' +
-              `${accountMonitorName}.${networkKey}` +
-              ' Already defined'
-          );
-        _monitorPromises[`${accountMonitorName}.${networkKey}`] = template
-          .filter(reledAccounts, provider)
-          .then(async (findings) => {
+        const key = `${accountMonitorName}.${networkKey}`;
+        if (monitors[key])
+          throw new Error('Monitor' + key + ' Already defined');
+        if (!_.isFunction(template.notification)) {
+          _monitorPromises[key] = template
+            .filter(reledAccounts, provider)
+            .then(async (findings) => {
+              findings.forEach((finding) => {
+                if (finding.related && finding.related.length > 0)
+                  reledAccounts.push(...finding.related);
+              });
+              return monitorBuilder(
+                template.monitor,
+                findings,
+                template.notification as NotifyConfig,
+                provider,
+                networkKey
+              ).then((r) => {
+                monitors[key] = _.cloneDeep(r.monitor);
+                functions = {...functions, ...r.autotasks};
+                secrets = {...secrets, ...r.secrets};
+                return r;
+              });
+            });
+        } else {
+          template.filter(nDeployments, provider).then(async (findings) => {
             findings.forEach((finding) => {
+              if (!_.isFunction(template.notification))
+                throw new Error(
+                  'template.notification expected to be function'
+                );
               if (finding.related && finding.related.length > 0)
                 reledAccounts.push(...finding.related);
-            });
-            return monitorBuilder(
-              template.monitor,
-              findings,
-              template.notification,
-              provider,
-              networkKey
-            ).then((r) => {
-              monitors[`${accountMonitorName}.${networkKey}`] = _.cloneDeep(
-                r.monitor
-              );
-              functions = {...functions, ...r.autotasks};
-              secrets = {...secrets, ...r.secrets};
-              return r;
+              if (!finding.account.name)
+                throw new Error(
+                  'When using channels as function, findings must return findings.account.name'
+                );
+              const key = `${accountMonitorName}.${networkKey}.${finding.account.name}`;
+              if (monitors[key])
+                throw new Error('Monitor' + key + ' Already defined');
+              _monitorPromises[key] = monitorBuilder(
+                template.monitor,
+                [finding],
+                template.notification(finding.account),
+                provider,
+                networkKey
+              ).then((r) => {
+                monitors[key] = _.cloneDeep(r.monitor);
+                monitors[key].name += ' ' + finding.account.name;
+                functions = {...functions, ...r.autotasks};
+                secrets = {...secrets, ...r.secrets};
+                return r;
+              });
             });
           });
+        }
       }
       await Promise.all(Object.values(_monitorPromises));
     }

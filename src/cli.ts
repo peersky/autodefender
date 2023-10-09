@@ -167,7 +167,6 @@ yargs(hideBin(process.argv))
           path.join(process.cwd(), config.outDir, 'monitors.json'),
           JSON.stringify(monitors, null, 4)
         );
-        console.log('__dirname', __dirname);
 
         const child = spawn(
           'sls',
