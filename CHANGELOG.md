@@ -1,5 +1,11 @@
 # defender-monitoring
 
+## 0.6.1
+
+### Patch Changes
+
+- Rebuild package
+
 ## 0.6.0
 
 ### Minor Changes
