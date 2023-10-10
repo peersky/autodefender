@@ -2,7 +2,7 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-var require$$0 = require('defender-relay-client/lib/ethers');
+var require$$0 = require('@openzeppelin/defender-relay-client/lib/ethers');
 var require$$1 = require('ethers');
 
 var ethBalanceCheck = {};

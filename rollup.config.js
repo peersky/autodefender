@@ -24,6 +24,7 @@ module.exports = [
       'web3',
       'axios',
       /^defender-relay-client(\/.*)?$/,
+      /^@openzeppelin\/defender-relay-client(\/.*)?$/,
     ],
   },
 
@@ -47,6 +48,7 @@ module.exports = [
       'axios',
       'defender-kvstore-client',
       /^defender-relay-client(\/.*)?$/,
+      /^@openzeppelin\/defender-relay-client(\/.*)?$/,
     ],
   },
 ];

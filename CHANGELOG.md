@@ -1,5 +1,11 @@
 # defender-monitoring
 
+## 0.7.0
+
+### Minor Changes
+
+- autotask from package fix; upgraded to @openzeppelin packages, added build process script for package file;
+
 ## 0.6.1
 
 ### Patch Changes

@@ -1,5 +1,6 @@
 {
   "name": "autodefender",
+  "private": true,
   "description": "Manage OpenZeppelin Defender Deployments without a hassle",
   "author": "Peersky",
   "repository": {
@@ -7,7 +8,7 @@
     "url": "https://github.com/peersky/autodefender.git",
     "directory": "/"
   },
-  "version": "0.6.1",
+  "version": "0.7.0",
   "main": "index.js",
   "bin": {
     "autodefend": "./src/cli.js"
@@ -32,8 +33,9 @@
     "monitors": "export TS_NODE=true && ts-node src/cli.ts monitors --config ./defender.config.ts",
     "contracts": "export TS_NODE=true && ts-node src/cli.ts contracts --config ./defender.config.ts",
     "prebuild": "tsc -p src/functions/tsconfig.json && rollup -c",
-    "build": "tsc && cp src/autodefender.package.json dist/package.json",
-    "postbuild": "cp README.md dist && cp -r ./src/abis/ ./dist/abis/ && cp -r ./src/templates/messages/*.md ./dist/templates/messages/ && prettier --write \"dist/**/*.{ts,js,json}\""
+    "build": "tsc && node ./copyPackageFile.js",
+    "postbuild": "cp README.md dist && cp -r ./src/abis/ ./dist/abis/ && cp -r ./src/templates/messages/*.md ./dist/templates/messages/ && prettier --write \"dist/**/*.{ts,js,json}\"",
+    "publish": "changeset && changeset version && pnpm build && cp -r .changeset ./dist/.changeset && cd dist && changeset publish"
   },
   "devDependencies": {
     "@changesets/changelog-github": "^0.4.8",
@@ -54,12 +56,12 @@
     "@typechain/ethers-v5": "^11.1.1",
     "@types/js-yaml": "^4.0.5",
     "@types/node": "^20.6.2",
-    "@typescript-eslint/eslint-plugin": "^5.59.8",
+    "@typescript-eslint/eslint-plugin": "^6.7.5",
     "@typescript-eslint/parser": "^6.7.2",
     "builtin-modules": "^3.3.0",
     "cross-env": "^7.0.3",
-    "defender-autotask-utils": "^1.44.0",
-    "defender-relay-client": "^1.44.0",
+    "@openzeppelin/defender-autotask-utils": "^1.44.0",
+    "@openzeppelin/defender-relay-client": "^1.44.0",
     "dotenv": "^16.1.4",
     "dotenv-cli": "^7.2.1",
     "eslint": "^8.43.0",

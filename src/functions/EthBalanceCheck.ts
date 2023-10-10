@@ -1,8 +1,8 @@
 import {
   AutotaskEvent,
   SentinelConditionResponse,
-} from 'defender-autotask-utils';
-import {DefenderRelayProvider} from 'defender-relay-client/lib/ethers';
+} from '@openzeppelin/defender-autotask-utils';
+import {DefenderRelayProvider} from '@openzeppelin/defender-relay-client/lib/ethers';
 import {ethers} from 'ethers';
 import {ScopedSecretsProvider} from './utils/scopedSecrets';
 
