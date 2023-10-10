@@ -1,5 +1,17 @@
 # defender-monitoring
 
+## 0.7.2
+
+### Patch Changes
+
+- small fix package scripts
+
+## 0.7.1
+
+### Patch Changes
+
+- fixing publish scripts
+
 ## 0.7.0
 
 ### Minor Changes
