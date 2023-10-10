@@ -35,7 +35,7 @@
     "prebuild": "tsc -p src/functions/tsconfig.json && rollup -c",
     "build": "tsc && node ./copyPackageFile.js",
     "postbuild": "cp README.md dist && cp -r ./src/abis/ ./dist/abis/ && cp -r ./src/templates/messages/*.md ./dist/templates/messages/ && prettier --write \"dist/**/*.{ts,js,json}\"",
-    "publish": "changeset && changeset version && pnpm build && cp -r .changeset ./dist/.changeset && cd dist && changeset publish"
+    "publish": "changeset && changeset version && pnpm build && cp -r .changeset ./dist/.changeset && cd dist && pnpm changeset publish"
   },
   "devDependencies": {
     "@changesets/changelog-github": "^0.4.8",
